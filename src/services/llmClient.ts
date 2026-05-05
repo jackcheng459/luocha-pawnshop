@@ -7,6 +7,7 @@ import type {
   ReceiptLlmResult,
   ResourceMap
 } from "../data/types";
+import { fallbackPhrase, inferPhraseType } from "../data/goldenPhrases";
 import { isSafeText } from "../game/compliance";
 import {
   fallbackFateResult,
@@ -88,14 +89,29 @@ export async function requestReceipt(player: PlayerState): Promise<ReceiptLlmRes
 
   const verbs = Array.isArray(result.verbsForTrades) ? result.verbsForTrades : fallback.verbsForTrades;
   if (!isSafeText(result.farewell, result.storyTitle, result.story, ...verbs)) return fallback;
+  const phrase = await requestFarewellPhrase(player);
   return {
-    farewell: cleanLine(result.farewell, fallback.farewell, 34),
+    farewell: cleanLine(phrase ?? result.farewell, fallback.farewell, 34),
     storyTitle: cleanLine(result.storyTitle, fallback.storyTitle, 12),
     story: cleanLine(result.story, fallback.story, 116),
     verbsForTrades: player.trades.map(
       (_trade, index) => cleanLine(verbs[index], fallback.verbsForTrades[index] ?? "换", 4)
     )
   };
+}
+
+export async function requestFarewellPhrase(player: PlayerState): Promise<string> {
+  const type = inferPhraseType(player);
+  try {
+    const response = await fetch(`/api/phrase/random/${type}`);
+    if (!response.ok) return fallbackPhrase(type);
+    const data = (await response.json()) as { phrase?: { text?: string } };
+    const text = data.phrase?.text;
+    if (!text || !isSafeText(text)) return fallbackPhrase(type);
+    return cleanLine(text, fallbackPhrase(type), 34);
+  } catch {
+    return fallbackPhrase(type);
+  }
 }
 
 async function callWithFallback<T>(task: LlmTask, payload: unknown, fallback: T): Promise<T> {

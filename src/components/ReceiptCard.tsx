@@ -5,6 +5,7 @@ import { sanitizeShareText } from "../game/compliance";
 import { formatTradeLine } from "../game/receipt";
 import { audioEngine } from "../services/audioEngine";
 import { ResourceLedger } from "./ResourceLedger";
+import { StoryQr } from "./StoryQr";
 
 type ReceiptCardProps = {
   player: PlayerState;
@@ -43,6 +44,7 @@ export const ReceiptCard = forwardRef<HTMLDivElement, ReceiptCardProps>(function
       </div>
       <ResourceLedger resources={player.resources} original={player.originalResources} compact />
       <p className="receipt-farewell">{farewell}</p>
+      <StoryQr caption="扫读命主故事" url={player.storyQrUrl ?? player.storyUrl} />
       <div className="receipt-seal">当</div>
     </motion.div>
   );

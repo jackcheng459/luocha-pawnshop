@@ -13,8 +13,11 @@ export function ItemShelf({ player, onBuy }: ItemShelfProps) {
     <section className="shelf-panel">
       <div className="section-heading">
         <span>货架</span>
-        <small>{player.priceMultiplier === 2 ? "今夜物贵，价翻一倍" : "价照旧"}</small>
+        <small>
+          {player.priceMultiplier === 2 ? "今夜物贵，价翻一倍" : `${player.seasonTerm}夜，价照旧`}
+        </small>
       </div>
+      <p className="season-shelf-hint">{player.seasonHint}</p>
       <div className="items-grid">
         {visibleItems.map((item) => (
           <ItemCard

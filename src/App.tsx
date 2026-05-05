@@ -11,13 +11,16 @@ import { ItemObtainOverlay } from "./components/ItemObtainOverlay";
 import { LotDrawer } from "./components/LotDrawer";
 import { OpeningScene } from "./components/OpeningScene";
 import { PawnForm } from "./components/PawnForm";
+import { PhraseAdmin } from "./components/PhraseAdmin";
 import { ReceiptAssemble } from "./components/ReceiptAssemble";
 import { ResourceLedger } from "./components/ResourceLedger";
 import { ShareButton } from "./components/ShareButton";
+import { SceneImage } from "./components/SceneImage";
 import { ShopScene } from "./components/ShopScene";
 import { ShopkeeperDialog } from "./components/ShopkeeperDialog";
 import { ShowcasePoster } from "./components/ShowcasePoster";
 import { SoundToggle } from "./components/SoundToggle";
+import { StoryPage } from "./components/StoryPage";
 import { StoryLedger } from "./components/StoryLedger";
 import { TransitionVeil } from "./components/TransitionVeil";
 import { items } from "./data/items";
@@ -35,10 +38,19 @@ import {
 import { fallbackPawnResult, fallbackReceiptResult } from "./services/fallback";
 import { requestFate, requestPawn, requestReceipt } from "./services/llmClient";
 import { audioEngine } from "./services/audioEngine";
+import { createFateStory } from "./services/storyClient";
+import { capturePawnContribution } from "./services/contributionClient";
 
 export default function App() {
   if (window.location.pathname === "/showcase") {
     return <ShowcasePoster />;
+  }
+  if (window.location.pathname === "/admin/phrases") {
+    return <PhraseAdmin />;
+  }
+  if (window.location.pathname.startsWith("/story/")) {
+    const storyId = decodeURIComponent(window.location.pathname.replace("/story/", "").split("/")[0]);
+    return <StoryPage storyId={storyId} />;
   }
 
   return <GameApp />;
@@ -46,7 +58,7 @@ export default function App() {
 
 function GameApp() {
   const [state, dispatch] = useReducer(gameReducer, initialState);
-  const [introStage, setIntroStage] = useState<"opening" | "entering" | "question" | "ritual">("opening");
+  const [introStage, setIntroStage] = useState<"opening" | "entering" | "question" | "ritual" | "fateLoading">("opening");
   const [entryIntent, setEntryIntent] = useState<EntryIntent>("relief");
   const [soundEnabled, setSoundEnabled] = useState(() => audioEngine.isEnabled());
   const [showPawnAgain, setShowPawnAgain] = useState(false);
@@ -55,6 +67,7 @@ function GameApp() {
     { item: Item; before: ResourceMap; after: ResourceMap } | undefined
   >();
   const fateRef = useRef<HTMLDivElement>(null);
+  const receiptFateRef = useRef<HTMLDivElement>(null);
   const receiptRef = useRef<HTMLDivElement>(null);
   const ritualDoneRef = useRef(false);
   const lastPhaseRef = useRef(state.phase);
@@ -84,6 +97,14 @@ function GameApp() {
   }, [player, state.llm.receipt, state.phase]);
 
   useEffect(() => {
+    if (!player || state.phase !== "receipt" || player.storyStatus !== "idle") return;
+    dispatch({ type: "SET_STORY_LOADING" });
+    createFateStory(player).then(({ record, storyQrUrl, storyUrl, usedFallback }) => {
+      dispatch({ type: "SET_STORY_RESULT", story: record, storyQrUrl, storyUrl, usedFallback });
+    });
+  }, [player, state.phase]);
+
+  useEffect(() => {
     if (!state.lastDialog || state.phase === "fateCard") return;
     setActiveDialog(state.lastDialog);
   }, [state.lastDialog, state.phase]);
@@ -94,16 +115,14 @@ function GameApp() {
     setVeil({ stamp: `${screenKey}-${Date.now()}`, text });
   }, [screenKey]);
 
-  function startGame() {
+  async function startGame() {
     if (ritualDoneRef.current) return;
     ritualDoneRef.current = true;
     audioEngine.playSeal();
+    setIntroStage("fateLoading");
     const resources = generateInitialResources();
-    const fate = fallbackFate(resources);
-    dispatch({ type: "START_WITH_FATE", entryIntent, resources, fate, llmLoading: true });
-    requestFate(resources, entryIntent).then((result) => {
-      dispatch({ type: "SET_FATE_RESULT", fate: result });
-    });
+    const fate = await requestFate(resources, entryIntent);
+    dispatch({ type: "START_WITH_FATE", entryIntent, resources, fate, llmLoading: false });
   }
 
   function changeFate() {
@@ -132,6 +151,7 @@ function GameApp() {
           llmResult.dialog !== fallback.dialog ||
           llmResult.ledgerLine !== fallback.ledgerLine);
       dispatch({ type: "COMPLETE_PAWN", input, llmResult, llmUsed });
+      capturePawnContribution(player, input, llmResult);
       setShowPawnAgain(false);
     });
   }
@@ -193,6 +213,27 @@ function GameApp() {
       }
       if (introStage === "question") {
         return <EntryQuestion onChoose={chooseIntent} />;
+      }
+      if (introStage === "fateLoading") {
+        return (
+          <section className="fate-loading-scene">
+            <SceneImage
+              alt="罗刹当铺店内"
+              className="ritual-bg"
+              fallbackClass="interior-fallback"
+              src="/images/shop-interior-main.jpg"
+            />
+            <div className="ritual-vignette" />
+            <motion.div
+              animate={{ opacity: 1, y: 0 }}
+              className="fate-loading-copy"
+              initial={{ opacity: 0, y: 14 }}
+            >
+              <p>掌柜低头磨墨，命牌尚未落案。</p>
+              <h2 className="title-brush">命数入纸</h2>
+            </motion.div>
+          </section>
+        );
       }
       return (
         <FateRitual onComplete={startGame} />
@@ -314,8 +355,12 @@ function GameApp() {
         <section className="two-column">
           <div className="card-stage">
             <ReceiptAssemble player={player} cardRef={receiptRef} />
+            <div className="offscreen-export">
+              <FateCard player={player} ref={receiptFateRef} />
+            </div>
             <div className="action-row center">
               <ShareButton targetRef={receiptRef} filename="罗刹当铺-当票卡.png" label="导出当票卡" />
+              <ShareButton targetRef={receiptFateRef} filename="罗刹当铺-命格卡.png" label="导出命格卡" />
               <button
                 className="seal-button"
                 type="button"
@@ -331,6 +376,18 @@ function GameApp() {
           <aside className="side-ledger">
             <ResourceLedger resources={player.resources} original={player.originalResources} />
             <p>{state.llm.receipt === "loading" ? "掌柜正在落款，最后一句最不好写。" : player.farewell}</p>
+            <p className="story-status-line">
+              {player.storyStatus === "loading"
+                ? "记账先生正在写一夜笔记。"
+                : player.storyUrl
+                  ? "命主故事已入账，命格卡右下角可扫码。"
+                  : "故事若入雾，主流程照走。"}
+            </p>
+            {player.storyUrl ? (
+              <a className="ghost-button story-link-button" href={player.storyUrl} target="_blank" rel="noreferrer">
+                读命主故事
+              </a>
+            ) : null}
             <StoryLedger beats={player.storyBeats} />
           </aside>
         </section>
@@ -387,6 +444,7 @@ function transitionText(screenKey: string): string | undefined {
     entering: "雾门一开",
     question: "掌柜问来意",
     ritual: "签筒自响",
+    fateLoading: "命数入纸",
     fateCard: "命牌落案",
     pawnRequired: "柜门半启",
     shop: "货架亮灯",

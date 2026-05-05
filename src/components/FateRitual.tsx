@@ -48,7 +48,7 @@ export function FateRitual({ onComplete }: FateRitualProps) {
         initial={{ opacity: 0, y: 16 }}
       >
         <p>桌上一只签筒，风里自响。</p>
-        <h2 className="title-brush">摇签求命</h2>
+        <h2 className="title-brush">摇签问命</h2>
       </motion.div>
       <button className="ritual-lot-button" type="button" onClick={startShake}>
         <LotTube raised={step === "stick" || step === "seal"} shaking={step === "shaking"} />
@@ -65,7 +65,7 @@ export function FateRitual({ onComplete }: FateRitualProps) {
             onClick={reveal}
           >
             <FateStick />
-            <span>取签</span>
+            <span className="fate-stick-label">取签</span>
           </motion.button>
         ) : null}
       </AnimatePresence>

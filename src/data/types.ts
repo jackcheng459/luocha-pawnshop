@@ -85,6 +85,9 @@ export type PlayerState = {
   entryIntent: EntryIntent;
   resources: ResourceMap;
   originalResources: ResourceMap;
+  seasonTerm: string;
+  seasonHint: string;
+  nightLabel: string;
   fateName: string;
   fateText: string;
   fateDetail: string;
@@ -106,6 +109,12 @@ export type PlayerState = {
   receiptStoryTitle?: string;
   receiptStory?: string;
   endingLine?: string;
+  storyStatus?: "idle" | "loading" | "done" | "fallback";
+  storyId?: string;
+  storyUrl?: string;
+  storyQrUrl?: string;
+  nightStory?: string;
+  storyTimestamp?: string;
 };
 
 export type LlmSlot = "idle" | "loading" | "done" | "fallback";
@@ -142,4 +151,78 @@ export type ReceiptLlmResult = {
   storyTitle: string;
   story: string;
   verbsForTrades: string[];
+};
+
+export type FateStoryInput = {
+  fateName: string;
+  fateJudgment: string;
+  weather?: string;
+  initialResources: ResourceMap;
+  finalResources: ResourceMap;
+  trades: Array<{
+    type: "pawn" | "buy" | "lotPenalty";
+    resourceFrom?: ResourceKey;
+    resourceTo?: ResourceKey;
+    amountFrom?: number;
+    amountTo?: number;
+    itemName?: string;
+    itemStory?: string;
+    itemPrice?: Partial<ResourceMap>;
+    sideEffects?: Partial<ResourceMap>;
+  }>;
+  drewLot: boolean;
+  lotResult?: LotResult;
+  extraLotAccepted?: boolean;
+  timestamp: string;
+  seasonTerm?: string;
+  nightLabel?: string;
+};
+
+export type FateStoryRecord = FateStoryInput & {
+  storyId: string;
+  fateDetail?: string;
+  storyText: string;
+  generatedAt: number;
+  llmModel: string;
+  promptVersion: string;
+};
+
+export type PhraseType =
+  | "recognize_pain"
+  | "less_self_deception"
+  | "elevate"
+  | "abrupt"
+  | "gentle_guard";
+
+export type PhraseStatus = "pending_review" | "approved" | "rejected" | "archived";
+
+export type Phrase = {
+  id: string;
+  type: PhraseType;
+  text: string;
+  status: PhraseStatus;
+  createdAt: number;
+  reviewedAt?: number;
+  reviewedBy?: string;
+  llmModel: string;
+  promptVersion: string;
+  usedCount: number;
+  lastUsedAt?: number;
+};
+
+export type ContributionRecord = {
+  id: string;
+  createdAt: number;
+  entryIntent: EntryIntent;
+  fateName: string;
+  seasonTerm?: string;
+  resourceFrom: ResourceKey;
+  resourceTo?: ResourceKey;
+  amountFrom: PawnAmount;
+  rawName: string;
+  rawStory: string;
+  renamedItem?: string;
+  ledgerLine?: string;
+  status: "pending_review" | "approved" | "rejected" | "archived";
+  promptVersion?: string;
 };

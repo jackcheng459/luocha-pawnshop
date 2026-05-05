@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>罗刹当铺 UI 设计方案</title>
+    <style>
+      :root {
+        --ink: #24160f;
+        --deep: #160d09;
+        --brown: #5b3420;
+        --paper: #dcc08a;
+        --paper-light: #f0dfb6;
+        --gold: #d8b878;
+        --cinnabar: #9b241c;
+        --muted: rgba(36, 22, 15, 0.68);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
+        background:
+          radial-gradient(circle at 18% 0%, rgba(155, 36, 28, 0.2), transparent 28%),
+          radial-gradient(circle at 82% 8%, rgba(216, 184, 120, 0.18), transparent 24%),
+          linear-gradient(180deg, #27150e 0%, #160d09 42%, #0f0907 100%);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .hero {
+        position: relative;
+        min-height: 86vh;
+        display: grid;
+        align-items: end;
+        overflow: hidden;
+        padding: 48px min(6vw, 72px);
+        color: #f4dfb5;
+        background:
+          linear-gradient(180deg, rgba(22, 13, 9, 0.18), rgba(22, 13, 9, 0.88)),
+          url("../public/images/luocha-pawnshop-poster-4x3.jpg") center / cover no-repeat;
+      }
+
+      .hero::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 50% 90%, rgba(216, 184, 120, 0.22), transparent 28%),
+          repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 5px);
+        mix-blend-mode: screen;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+        width: min(880px, 100%);
+      }
+
+      .eyebrow {
+        margin: 0 0 14px;
+        color: #e5b75d;
+        letter-spacing: 0.08em;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        font-family: "Kaiti SC", "STKaiti", KaiTi, serif;
+        font-weight: 500;
+      }
+
+      h1 {
+        font-size: clamp(56px, 12vw, 128px);
+        line-height: 0.95;
+        text-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+      }
+
+      .hero p:last-child {
+        max-width: 680px;
+        margin: 22px 0 0;
+        color: rgba(244, 223, 181, 0.86);
+        font-size: clamp(17px, 2.2vw, 24px);
+        line-height: 1.75;
+      }
+
+      .wrap {
+        width: min(1120px, calc(100% - 36px));
+        margin: 0 auto;
+      }
+
+      .section {
+        padding: 72px 0;
+      }
+
+      .paper {
+        border: 1px solid rgba(216, 184, 120, 0.3);
+        border-radius: 8px;
+        background:
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E"),
+          linear-gradient(180deg, var(--paper-light), #bd8956);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.34);
+      }
+
+      .intro {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+        gap: 28px;
+        align-items: stretch;
+      }
+
+      .intro-copy {
+        padding: clamp(28px, 5vw, 48px);
+      }
+
+      .intro-copy h2,
+      .section-title {
+        color: var(--cinnabar);
+        font-size: clamp(34px, 6vw, 56px);
+      }
+
+      .intro-copy p,
+      .card p,
+      .note p,
+      .timeline p {
+        color: rgba(36, 22, 15, 0.82);
+        line-height: 1.85;
+      }
+
+      .scene-card {
+        min-height: 420px;
+        overflow: hidden;
+        background:
+          linear-gradient(180deg, rgba(22, 13, 9, 0.08), rgba(22, 13, 9, 0.28)),
+          url("../public/images/shop-interior-main.jpg") center / cover no-repeat;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        padding: 24px;
+        border: 1px solid rgba(216, 184, 120, 0.22);
+        border-radius: 8px;
+        background:
+          linear-gradient(rgba(244, 223, 181, 0.94), rgba(190, 136, 82, 0.94));
+        box-shadow: 0 18px 46px rgba(0, 0, 0, 0.26);
+      }
+
+      .card h3 {
+        color: var(--cinnabar);
+        font-size: 28px;
+      }
+
+      .dark-band {
+        padding: 72px 0;
+        color: #f0dfb6;
+        background:
+          linear-gradient(rgba(18, 10, 7, 0.9), rgba(18, 10, 7, 0.94)),
+          url("../public/images/shop-facade-mist.jpg") center / cover fixed;
+      }
+
+      .dark-band .section-title,
+      .dark-band h3 {
+        color: #e6b970;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 18px;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr);
+        gap: 18px;
+        padding: 22px;
+        border: 1px solid rgba(216, 184, 120, 0.22);
+        border-radius: 8px;
+        background: rgba(36, 22, 15, 0.62);
+      }
+
+      .step b {
+        color: #e6b970;
+        font-family: "Kaiti SC", "STKaiti", KaiTi, serif;
+        font-size: 24px;
+      }
+
+      .step p {
+        margin: 0;
+        color: rgba(240, 223, 182, 0.82);
+      }
+
+      .note {
+        padding: 28px;
+        border-left: 5px solid var(--cinnabar);
+      }
+
+      .asset-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .asset {
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px solid rgba(216, 184, 120, 0.24);
+        background: #25140e;
+      }
+
+      .asset img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+      }
+
+      .asset span {
+        display: block;
+        padding: 12px 14px;
+        color: #f0dfb6;
+        font-size: 14px;
+      }
+
+      .lessons {
+        columns: 2;
+        column-gap: 34px;
+        margin: 0;
+        padding-left: 20px;
+        color: rgba(244, 223, 181, 0.86);
+        line-height: 1.9;
+      }
+
+      .footer {
+        padding: 44px 0 56px;
+        color: rgba(244, 223, 181, 0.66);
+        text-align: center;
+      }
+
+      @media (max-width: 860px) {
+        .hero {
+          min-height: 72vh;
+          padding: 36px 22px;
+        }
+
+        .intro,
+        .grid,
+        .asset-row,
+        .step {
+          grid-template-columns: 1fr;
+        }
+
+        .lessons {
+          columns: 1;
+        }
+
+        .section,
+        .dark-band {
+          padding: 48px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">H5 志怪小游戏 UI 设计复盘</p>
+        <h1>罗刹当铺</h1>
+        <p>一间只在夜里开门的当铺，一张能照见人的命牌，一张可分享的一夜当票。UI 的任务不是解释规则，而是让玩家相信自己真的走进了这间铺子。</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="section">
+        <div class="wrap intro">
+          <article class="paper intro-copy">
+            <h2>设计定位</h2>
+            <p>《罗刹当铺》的界面不是普通游戏菜单，也不是营销页面。它是一段 90 到 120 秒的志怪交互体验。用户从雾门外进入夜铺，完成摇签、认命、典当、取物、续签、得票、离店。</p>
+            <p>设计关键词是聊斋骨、旧纸感、木质旧物、朱砂印、烛光、雾、账本、掌柜、命数和一夜故事。所有界面都围绕这些词收束。</p>
+          </article>
+          <div class="paper scene-card" aria-label="店内主视觉"></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <h2 class="section-title">视觉原则</h2>
+          <div class="grid" style="margin-top: 24px">
+            <article class="card">
+              <h3>先有场景</h3>
+              <p>先让玩家看到门、桌、灯、签筒和掌柜，再放按钮和数据。页面从组件堆叠转成场景承载。</p>
+            </article>
+            <article class="card">
+              <h3>材质统一</h3>
+              <p>深褐、暖棕、宣纸黄、朱砂红和墨色构成主色。层级靠纸张、木纹、边框、印章和阴影区分。</p>
+            </article>
+            <article class="card">
+              <h3>克制动效</h3>
+              <p>动效只服务关键仪式点。雾门、摇签、竹签弹出、朱印盖落、当票展开，都让点击变得有重量。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="dark-band">
+        <div class="wrap">
+          <h2 class="section-title">关键界面</h2>
+          <div class="timeline" style="margin-top: 24px">
+            <div class="step">
+              <b>雾门</b>
+              <p>开场使用当铺远景，标题直接压在场景上，不做营销式 hero。第一屏只负责让玩家愿意推门。</p>
+            </div>
+            <div class="step">
+              <b>问来意</b>
+              <p>玩家先回答“来此逛逛”还是“有烦恼事欲解脱”。选择不是菜单，而是把来意写进后续命格和故事。</p>
+            </div>
+            <div class="step">
+              <b>摇签</b>
+              <p>签筒是核心仪式道具。最终改成独立旧竹木素材，签筒摇晃后弹出同质感竹签，再盖朱砂命印。</p>
+            </div>
+            <div class="step">
+              <b>命牌</b>
+              <p>命格卡既是游戏内反馈，也是可分享的人格卡。判词短、小传准、钩子留白，右下角承接命主故事二维码。</p>
+            </div>
+            <div class="step">
+              <b>货架</b>
+              <p>货架不是商城。每件物品都是一件能被典当或取走的人生隐喻，档位通过纸面、暗金和朱砂边区分。</p>
+            </div>
+            <div class="step">
+              <b>当票</b>
+              <p>当票卡是一局的收束。交易、命数、临别金句和二维码都要收在旧纸里，二维码可扫但不能抢戏。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <h2 class="section-title">资产策略</h2>
+          <div class="asset-row" style="margin-top: 24px">
+            <figure class="asset">
+              <img src="../public/images/luocha-pawnshop-poster-4x3.jpg" alt="4:3 展示图" />
+              <span>4:3 比赛展示图</span>
+            </figure>
+            <figure class="asset">
+              <img src="../public/images/shop-facade-mist.jpg" alt="开场当铺远景" />
+              <span>开场远景当铺</span>
+            </figure>
+            <figure class="asset">
+              <img src="../public/images/shop-interior-main.jpg" alt="店内主场景" />
+              <span>店内主场景</span>
+            </figure>
+            <figure class="asset">
+              <img src="../public/images/lot-tube-generated.png" alt="旧竹签筒" />
+              <span>独立旧竹签筒</span>
+            </figure>
+          </div>
+          <article class="paper note" style="margin-top: 24px">
+            <p>位图负责大气氛，CSS、SVG 和 React 负责交互。签筒、朱印、卡片、雾气、当票拼合都由组件和样式控制，避免把交互动效锁死在一张图里。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="dark-band">
+        <div class="wrap">
+          <h2 class="section-title">迭代经过</h2>
+          <div class="grid" style="margin-top: 24px">
+            <article class="card">
+              <h3>第一阶段：能玩</h3>
+              <p>先跑通主流程，从摇命牌到当票卡。功能完整，但还像 H5 表单。</p>
+            </article>
+            <article class="card">
+              <h3>第二阶段：像游戏</h3>
+              <p>加入场景图、过场、掌柜剪影、货架反馈、BGM、音效和获得动画，让流程有手感。</p>
+            </article>
+            <article class="card">
+              <h3>第三阶段：像当铺</h3>
+              <p>重做签筒，补掌柜问来意、九两九钱暗线、节气维度、命主故事和二维码入口。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <h2 class="section-title">踩坑与修正</h2>
+          <div class="grid" style="margin-top: 24px">
+            <article class="card">
+              <h3>签筒不能裁</h3>
+              <p>从背景图裁签筒会边缘脏、位置错、动画别扭。核心道具必须独立设计。</p>
+            </article>
+            <article class="card">
+              <h3>二维码不能抢戏</h3>
+              <p>二维码太大会遮挡当票，内容太长又会生成失败。最终卡片只放短链接，长链接留给按钮兜底。</p>
+            </article>
+            <article class="card">
+              <h3>朱印不能挡内容</h3>
+              <p>朱砂印是仪式，不是遮罩。最终印章上移，右下角留给二维码，盖印动画短暂出现后淡出。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="dark-band">
+        <div class="wrap">
+          <h2 class="section-title">可复用经验</h2>
+          <ol class="lessons">
+            <li>H5 小游戏先做世界入口，再做组件排版。</li>
+            <li>古风不是加毛笔字，而是统一材质、节奏和说话方式。</li>
+            <li>分享卡要先有一句能发朋友圈的话，再谈排版。</li>
+            <li>核心道具必须独立设计，不能从背景里随便抠。</li>
+            <li>动效围绕关键仪式点，不要平均撒在所有元素上。</li>
+            <li>视觉资产要有 fallback，比赛现场不能因加载失败翻车。</li>
+            <li>LLM 内容需要 UI 出口，二维码和故事页就是出口。</li>
+            <li>玩家侧必须保持世界观纯度，后台可以朴素。</li>
+            <li>声音是“像游戏”的关键，不是装饰。</li>
+            <li>每次修视觉问题都要问：它是在增强当铺，还是把当铺拉回网页？</li>
+          </ol>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap">《罗刹当铺》UI 设计方案 · 本页用于项目展示和开发交接</div>
+    </footer>
+  </body>
+</html>

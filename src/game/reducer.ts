@@ -9,6 +9,7 @@ import type {
   PawnLlmResult,
   PlayerState,
   ReceiptLlmResult,
+  FateStoryRecord,
   ResourceMap,
   TradeRecord
 } from "../data/types";
@@ -23,6 +24,7 @@ import {
   pickOne,
   scaledPrice
 } from "./rules";
+import { getSeasonContext } from "./season";
 import {
   createBuyBeat,
   createChangedFateBeat,
@@ -61,6 +63,15 @@ export type GameAction =
   | { type: "DRAW_LOT"; result: LotResult }
   | { type: "SET_RECEIPT_LLM_LOADING" }
   | { type: "SET_RECEIPT_RESULT"; result: ReceiptLlmResult; llmUsed: boolean }
+  | { type: "SET_STORY_LOADING" }
+  | {
+      type: "SET_STORY_RESULT";
+      story: FateStoryRecord;
+      storyUrl: string;
+      storyQrUrl: string;
+      usedFallback: boolean;
+    }
+  | { type: "SET_FAREWELL_PHRASE"; farewell: string }
   | { type: "LEAVE" }
   | { type: "RESET" };
 
@@ -78,10 +89,14 @@ export const initialState: GameState = {
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "START_WITH_FATE": {
+      const season = getSeasonContext();
       const player: PlayerState = {
         entryIntent: action.entryIntent,
         resources: action.resources,
         originalResources: action.resources,
+        seasonTerm: season.term,
+        seasonHint: season.hint,
+        nightLabel: season.nightLabel,
         fateName: action.fate.name,
         fateText: action.fate.text,
         fateDetail: action.fate.detail,
@@ -100,14 +115,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         buyCount: 0,
         pawnCount: 0,
         drewLot: false,
-        priceMultiplier: 1
+        priceMultiplier: 1,
+        storyStatus: "idle"
       };
 
       return {
         ...state,
         phase: "fateCard",
         player,
-        lastDialog: "命牌已落。别急着认，也别急着不认。",
+        lastDialog: "九两九钱，整整。客官身上不少不多，与众生同。",
         safetyMessage: undefined,
         llm: {
           ...state.llm,
@@ -178,7 +194,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "GO_PAWN":
-      return { ...state, phase: "pawnRequired", safetyMessage: undefined };
+      return {
+        ...state,
+        phase: "pawnRequired",
+        lastDialog: "客官今夜的命数，与昨夜不同。也无须与昨夜相比。",
+        safetyMessage: undefined
+      };
 
     case "SET_SAFETY_MESSAGE":
       return { ...state, safetyMessage: action.message };
@@ -381,6 +402,41 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         llm: { ...state.llm, receipt: action.llmUsed ? "done" : "fallback" }
       };
     }
+
+    case "SET_STORY_LOADING":
+      if (!state.player) return state;
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          storyStatus: "loading"
+        }
+      };
+
+    case "SET_STORY_RESULT":
+      if (!state.player) return state;
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          storyStatus: action.usedFallback ? "fallback" : "done",
+          storyId: action.story.storyId,
+          storyUrl: action.storyUrl,
+          storyQrUrl: action.storyQrUrl,
+          nightStory: action.story.storyText,
+          storyTimestamp: action.story.timestamp
+        }
+      };
+
+    case "SET_FAREWELL_PHRASE":
+      if (!state.player) return state;
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          farewell: action.farewell
+        }
+      };
 
     case "LEAVE":
       return { ...state, phase: "leaving" };

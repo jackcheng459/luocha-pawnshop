@@ -1,7 +1,7 @@
 type OscillatorTypeName = OscillatorType;
 
 const storageKey = "luocha-sound-enabled";
-const bgmUrl = "/audio/bgm/a-really-dark-alley.mp3";
+const bgmUrl = "/audio/bgm/luocha.mp3";
 
 class AudioEngine {
   private context?: AudioContext;

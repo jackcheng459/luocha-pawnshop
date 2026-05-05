@@ -19,10 +19,10 @@ export function ReceiptAssemble({ player, cardRef }: ReceiptAssembleProps) {
     >
       <ReceiptCard player={player} ref={cardRef} />
       <motion.div
-        animate={{ y: 0, scale: 1, rotate: -8, opacity: 1 }}
+        animate={{ y: 0, scale: 1, rotate: -8, opacity: [0, 1, 0] }}
         className="receipt-assemble-seal"
         initial={{ y: -140, scale: 3.5, rotate: -24, opacity: 0 }}
-        transition={{ delay: 0.55, duration: 0.42, type: "spring", stiffness: 180 }}
+        transition={{ delay: 0.55, duration: 0.9, ease: "easeOut" }}
       >
         <CinnabarSeal text="当" />
       </motion.div>

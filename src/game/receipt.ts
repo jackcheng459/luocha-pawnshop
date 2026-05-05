@@ -4,6 +4,7 @@ import {
   receiptVerbs,
   warmFarewells
 } from "../data/templates";
+import { fallbackPhrase, inferPhraseType } from "../data/goldenPhrases";
 import type { PlayerState, ResourceKey, TradeRecord } from "../data/types";
 import { resourceName, formatMoney, pickOne } from "./rules";
 
@@ -16,6 +17,7 @@ export function fallbackFarewell(player: PlayerState): string {
     : undefined;
   if (legendary?.legendaryFarewell) return legendary.legendaryFarewell;
   if (Math.random() < 0.2) return pickOne(warmFarewells);
+  if (Math.random() < 0.55) return fallbackPhrase(inferPhraseType(player));
 
   const pawnTrades = player.trades.filter((trade) => trade.type === "pawn");
   const soldHui = pawnTrades.filter((trade) => trade.resourceFrom === "hui").length;
@@ -28,6 +30,9 @@ export function fallbackFarewell(player: PlayerState): string {
   });
   const huiLow = player.resources.hui <= 8;
 
+  if (player.buyCount === 0 && pawnTrades.length >= 1) {
+    return "客官今夜走得轻。下次来，又是另一夜。";
+  }
   if (boughtClear && soldKarma >= 1) return pickOne(farewellByPath.clear);
   if (huiLow) return pickOne(farewellByPath.heavy);
   if (soldHui >= 2) return pickOne(farewellByPath.huiMain);

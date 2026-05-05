@@ -31,7 +31,7 @@ export function createFateBeat(id: string, fate: FateResult): StoryBeat {
     id,
     tone: "fate",
     title: `命牌：${fate.name}`,
-    text: `签筒停住，纸上先落一句：${fate.hook || fate.text}`
+    text: `签筒停住，掌柜先称一声：九两九钱，整整。纸上再落一句：${fate.hook || fate.text}`
   };
 }
 

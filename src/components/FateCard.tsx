@@ -4,6 +4,7 @@ import { resourceLabels, resourceOrder } from "../data/fates";
 import type { PlayerState } from "../data/types";
 import { formatMoney } from "../game/rules";
 import { audioEngine } from "../services/audioEngine";
+import { StoryQr } from "./StoryQr";
 
 type FateCardProps = {
   player: PlayerState;
@@ -27,7 +28,7 @@ export const FateCard = forwardRef<HTMLDivElement, FateCardProps>(function FateC
       <div className="card-corner top-right" />
       <div className="card-corner bottom-left" />
       <div className="card-corner bottom-right" />
-      <p className="card-kicker">罗刹当铺命牌</p>
+      <p className="card-kicker">罗刹当铺命牌 · {player.seasonTerm}</p>
       <h1>{player.fateName}</h1>
       {player.changedFate ? <div className="changed-mark">此命已改</div> : null}
       <p className="fate-text">{player.fateText}</p>
@@ -37,6 +38,7 @@ export const FateCard = forwardRef<HTMLDivElement, FateCardProps>(function FateC
         <p>{player.fateStory}</p>
       </div>
       <p className="fate-hook">{player.fateHook}</p>
+      <p className="fate-season">{player.seasonHint}</p>
       <div className="fate-bars">
         {resourceOrder.map((key) => (
           <div className="fate-bar" key={key}>
@@ -51,6 +53,7 @@ export const FateCard = forwardRef<HTMLDivElement, FateCardProps>(function FateC
         ))}
       </div>
       <div className="card-stamp">九两九钱</div>
+      <StoryQr url={player.storyQrUrl ?? player.storyUrl} />
     </motion.div>
   );
 });

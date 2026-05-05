@@ -1,5 +1,9 @@
 Background music:
-Current in-app BGM file: public/audio/bgm/a-really-dark-alley.mp3
+Current in-app BGM file: public/audio/bgm/luocha.mp3
+Source: local project-provided audio.
+
+Backup CC0 music:
+public/audio/bgm/a-really-dark-alley.mp3
 "A really dark alley" by Loyalty Freak Music
 Source: Wikimedia Commons / Free Music Archive
 https://commons.wikimedia.org/wiki/File:Loyalty_Freak_Music_-_07_-_A_really_dark_alley.ogg
@@ -7,6 +11,3 @@ License: Creative Commons CC0 1.0 Universal Public Domain Dedication
 https://creativecommons.org/publicdomain/zero/1.0/
 
 The MP3 file is the Free Music Archive MP3 linked from Wikimedia Commons.
-
-Excluded local audio:
-public/audio/bgm/luocha.mp3 is local project-provided audio and is intentionally excluded from the open-source repository unless its license is verified.
