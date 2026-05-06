@@ -1,13 +1,17 @@
 import { motion } from "framer-motion";
 import { ScrollText } from "lucide-react";
+import type { GuidanceMode } from "../data/types";
 import { audioEngine } from "../services/audioEngine";
 
 type LotDrawerProps = {
+  guidanceMode?: GuidanceMode | null;
   onDraw: () => void;
   onSkip: () => void;
 };
 
-export function LotDrawer({ onDraw, onSkip }: LotDrawerProps) {
+export function LotDrawer({ guidanceMode, onDraw, onSkip }: LotDrawerProps) {
+  const isNovice = guidanceMode === "novice";
+
   return (
     <motion.section
       animate={{ opacity: 1, y: 0, rotate: 0 }}
@@ -22,8 +26,16 @@ export function LotDrawer({ onDraw, onSkip }: LotDrawerProps) {
         <span />
         <span />
       </div>
-      <h2>桌上多出一支签</h2>
-      <p>抽了，可能翻盘；不抽，至少不再加价。</p>
+      <h2>{isNovice ? "三笔已毕" : "桌上又多一支签"}</h2>
+      {isNovice ? (
+        <p>
+          桌上多出一支签。抽，则再做一笔；不抽，便就此结当。
+          <br />
+          上签照旧，中签加倍，下签折慧。
+        </p>
+      ) : (
+        <p>桌上又多一支签。</p>
+      )}
       <div className="action-row center">
         <button className="ghost-button" type="button" onClick={onSkip}>
           不续了

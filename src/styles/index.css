@@ -735,6 +735,110 @@ button {
   line-height: 1.8;
 }
 
+.guidance-choice-panel,
+.guidance-inline {
+  border: 1px solid rgba(168, 56, 56, 0.34);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(70, 34, 20, 0.58), rgba(31, 16, 10, 0.62)),
+    rgba(44, 22, 14, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(232, 182, 90, 0.08), 0 18px 42px rgba(0, 0, 0, 0.18);
+}
+
+.guidance-choice-panel {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 620px);
+  margin: 18px auto 0;
+  padding: 22px;
+  color: #ead8b1;
+  text-align: center;
+}
+
+.guidance-kicker {
+  margin: 0;
+  color: #c78264;
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+.guidance-rule-copy {
+  display: grid;
+  gap: 6px;
+  color: #efd8a8;
+  font-family: "Kaiti SC", "STKaiti", KaiTi, serif;
+  font-size: clamp(20px, 3.2vw, 28px);
+  line-height: 1.45;
+}
+
+.guidance-rule-copy p,
+.guidance-choice-body h2 {
+  margin: 0;
+}
+
+.guidance-choice-body {
+  display: grid;
+  gap: 14px;
+}
+
+.guidance-choice-body h2 {
+  color: #f0d69b;
+  font-family: "ZCOOL XiaoWei", "Noto Serif SC", serif;
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 400;
+  line-height: 1.28;
+}
+
+.guidance-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.guidance-choice-button {
+  min-height: 54px;
+  border: 1px solid rgba(232, 182, 90, 0.32);
+  border-radius: 8px;
+  color: #ead8b1;
+  background: rgba(31, 16, 10, 0.54);
+  font-family: "Kaiti SC", "STKaiti", KaiTi, serif;
+  font-size: 22px;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.guidance-choice-button:hover:not(:disabled),
+.guidance-choice-button:focus-visible {
+  border-color: rgba(232, 182, 90, 0.68);
+  background: rgba(85, 41, 23, 0.68);
+  transform: translateY(-2px);
+}
+
+.guidance-choice-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.guidance-inline {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  color: #e6cda0;
+  font-family: "Kaiti SC", "STKaiti", KaiTi, serif;
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.guidance-inline p {
+  margin: 0;
+}
+
+.shelf-guidance {
+  margin: 0 0 16px;
+}
+
 .ledger {
   display: grid;
   gap: 10px;
@@ -1087,6 +1191,13 @@ button {
 
 .item-price {
   color: #e8b65a;
+}
+
+.insufficient-hint {
+  margin-top: -4px;
+  color: #b75f5a;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .buy-button {
@@ -1695,6 +1806,14 @@ button {
   }
 
   .entry-choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guidance-choice-panel {
+    padding: 18px 14px;
+  }
+
+  .guidance-choice-grid {
     grid-template-columns: 1fr;
   }
 

@@ -8,9 +8,10 @@ type ItemCardProps = {
   resources: ResourceMap;
   multiplier: 1 | 2;
   onBuy: (itemId: number) => void;
+  insufficientHint?: string;
 };
 
-export function ItemCard({ item, resources, multiplier, onBuy }: ItemCardProps) {
+export function ItemCard({ item, resources, multiplier, onBuy, insufficientHint }: ItemCardProps) {
   const affordable = canAfford(resources, item.price, multiplier);
   return (
     <motion.article
@@ -35,6 +36,7 @@ export function ItemCard({ item, resources, multiplier, onBuy }: ItemCardProps) 
       <p>{item.description}</p>
       <p className="item-lore">{item.lore}</p>
       <div className="item-price">{formatResourcePrice(item.price, multiplier)}</div>
+      {insufficientHint ? <div className="insufficient-hint">{insufficientHint}</div> : null}
       <button
         className={affordable ? "buy-button" : "buy-button unaffordable"}
         type="button"

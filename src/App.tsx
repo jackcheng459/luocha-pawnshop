@@ -6,6 +6,7 @@ import { DoorTransition } from "./components/DoorTransition";
 import { EntryQuestion } from "./components/EntryQuestion";
 import { FateCard } from "./components/FateCard";
 import { FateRitual } from "./components/FateRitual";
+import { GuidanceChoice } from "./components/GuidanceChoice";
 import { ItemShelf } from "./components/ItemShelf";
 import { ItemObtainOverlay } from "./components/ItemObtainOverlay";
 import { LotDrawer } from "./components/LotDrawer";
@@ -23,8 +24,9 @@ import { SoundToggle } from "./components/SoundToggle";
 import { StoryPage } from "./components/StoryPage";
 import { StoryLedger } from "./components/StoryLedger";
 import { TransitionVeil } from "./components/TransitionVeil";
+import { resourceLabels, resourceOrder } from "./data/fates";
 import { items } from "./data/items";
-import type { EntryIntent, Item, PawnInput, ResourceMap } from "./data/types";
+import type { EntryIntent, GuidanceMode, Item, PawnInput, ResourceMap } from "./data/types";
 import { checkSafety } from "./game/compliance";
 import { fallbackFate } from "./game/fate";
 import { gameReducer, initialState } from "./game/reducer";
@@ -33,13 +35,19 @@ import {
   applySideEffects,
   canAfford,
   drawLot,
-  generateInitialResources
+  generateInitialResources,
+  scaledPrice
 } from "./game/rules";
 import { fallbackPawnResult, fallbackReceiptResult } from "./services/fallback";
 import { requestFate, requestPawn, requestReceipt } from "./services/llmClient";
 import { audioEngine } from "./services/audioEngine";
 import { createFateStory } from "./services/storyClient";
 import { capturePawnContribution } from "./services/contributionClient";
+
+const GUIDANCE_NODES = {
+  PAWN_FIRST_TIME: "pawn_first_time",
+  SHELF_FIRST_TIME: "shelf_first_time"
+} as const;
 
 export default function App() {
   if (window.location.pathname === "/showcase") {
@@ -63,6 +71,8 @@ function GameApp() {
   const [soundEnabled, setSoundEnabled] = useState(() => audioEngine.isEnabled());
   const [showPawnAgain, setShowPawnAgain] = useState(false);
   const [activeDialog, setActiveDialog] = useState<string | undefined>();
+  const [guidanceMode, setGuidanceMode] = useState<GuidanceMode | null>(null);
+  const [insufficientItemId, setInsufficientItemId] = useState<number | undefined>();
   const [obtained, setObtained] = useState<
     { item: Item; before: ResourceMap; after: ResourceMap } | undefined
   >();
@@ -71,6 +81,8 @@ function GameApp() {
   const receiptRef = useRef<HTMLDivElement>(null);
   const ritualDoneRef = useRef(false);
   const fateRequestRef = useRef(0);
+  const shownGuidanceRef = useRef<Set<string>>(new Set());
+  const shownInsufficientItemRef = useRef<Set<number>>(new Set());
   const lastPhaseRef = useRef(state.phase);
   const [veil, setVeil] = useState<{ stamp: string; text: string }>();
   const player = state.player;
@@ -136,6 +148,11 @@ function GameApp() {
     dispatch({ type: "CHANGE_FATE", resources, fate });
   }
 
+  function chooseGuidanceMode(mode: GuidanceMode) {
+    setGuidanceMode(mode);
+    dispatch({ type: "GO_PAWN" });
+  }
+
   function submitPawn(input: PawnInput) {
     const safety = checkSafety(input.itemName, input.itemStory);
     if (!safety.ok) {
@@ -167,9 +184,13 @@ function GameApp() {
   function resetGame() {
     void audioEngine.unlock().then(() => audioEngine.playDoor());
     fateRequestRef.current += 1;
+    shownGuidanceRef.current.clear();
+    shownInsufficientItemRef.current.clear();
     ritualDoneRef.current = false;
     setIntroStage("opening");
     setEntryIntent("relief");
+    setGuidanceMode(null);
+    setInsufficientItemId(undefined);
     setShowPawnAgain(false);
     setActiveDialog(undefined);
     setObtained(undefined);
@@ -182,15 +203,42 @@ function GameApp() {
     if (!item) return;
     if (!canAfford(player.resources, item.price, player.priceMultiplier)) {
       audioEngine.playDeny();
+      if (guidanceMode === "novice" && !shownInsufficientItemRef.current.has(itemId)) {
+        shownInsufficientItemRef.current.add(itemId);
+        setInsufficientItemId(itemId);
+      } else {
+        setInsufficientItemId(undefined);
+      }
       dispatch({ type: "BUY_ITEM", itemId });
       return;
     }
+    setInsufficientItemId(undefined);
     const before = player.resources;
     const afterPrice = applyPrice(before, item.price, player.priceMultiplier);
     const after = applySideEffects(afterPrice, item.sideEffects);
     audioEngine.playCoin();
     dispatch({ type: "BUY_ITEM", itemId });
     setObtained({ item, before, after });
+  }
+
+  function markGuidanceShown(nodeId: string) {
+    shownGuidanceRef.current.add(nodeId);
+  }
+
+  function canShowGuidance(nodeId: string) {
+    return guidanceMode === "novice" && !shownGuidanceRef.current.has(nodeId);
+  }
+
+  function insufficientHint(itemId: number): string | undefined {
+    if (!player || guidanceMode !== "novice") return undefined;
+    const item = items.find((entry) => entry.id === itemId);
+    if (!item) return undefined;
+    const price = scaledPrice(item, player.priceMultiplier);
+    const missing = resourceOrder
+      .map((key) => ({ key, value: (price[key] ?? 0) - player.resources[key] }))
+      .find((entry) => entry.value > 0);
+    if (!missing) return undefined;
+    return `客官${resourceLabels[missing.key]}尚缺 ${missing.value} 钱`;
   }
 
   function enterShop() {
@@ -250,32 +298,36 @@ function GameApp() {
         <section className="two-column">
           <div className="card-stage">
             <FateCard player={player} ref={fateRef} />
-            <div className="action-row center">
-              <ShareButton targetRef={fateRef} filename="罗刹当铺-命格卡.png" label="导出命格卡" />
-              <button
-                className="ghost-button"
-                disabled={player.changedFate || player.resources.hui < 10}
-                type="button"
-                onClick={changeFate}
-              >
-                <RefreshCcw size={15} strokeWidth={1.8} />
-                <span>改命一次，折慧一两</span>
-              </button>
-              <button
-                className="seal-button"
-                type="button"
-                onClick={() => {
-                  audioEngine.playPaper();
-                  dispatch({ type: "GO_PAWN" });
-                }}
-              >
-                入铺问价
-              </button>
-            </div>
+            {guidanceMode ? (
+              <div className="action-row center">
+                <ShareButton targetRef={fateRef} filename="罗刹当铺-命格卡.png" label="导出命格卡" />
+                <button
+                  className="ghost-button"
+                  disabled={player.changedFate || player.resources.hui < 10}
+                  type="button"
+                  onClick={changeFate}
+                >
+                  <RefreshCcw size={15} strokeWidth={1.8} />
+                  <span>改命一次，折慧一两</span>
+                </button>
+                <button
+                  className="seal-button"
+                  type="button"
+                  onClick={() => {
+                    audioEngine.playPaper();
+                    dispatch({ type: "GO_PAWN" });
+                  }}
+                >
+                  入铺问价
+                </button>
+              </div>
+            ) : (
+              <GuidanceChoice onChoose={chooseGuidanceMode} />
+            )}
           </div>
           <aside className="side-ledger">
             <ResourceLedger resources={player.resources} />
-            <p>{state.llm.fate === "loading" ? "掌柜还在磨墨，先看这句像不像你。" : state.lastDialog}</p>
+            <p>{guidanceMode ? state.lastDialog : "命格朱砂未干，掌柜正抬眼看客官。"}</p>
             <StoryLedger beats={player.storyBeats} />
           </aside>
         </section>
@@ -289,6 +341,10 @@ function GameApp() {
             canSellAgain={player.pawnCount < 2}
             isEntry={!player.hasPawned}
             resources={player.resources}
+            showGuidance={
+              !player.hasPawned && canShowGuidance(GUIDANCE_NODES.PAWN_FIRST_TIME)
+            }
+            onGuidanceVisible={() => markGuidanceShown(GUIDANCE_NODES.PAWN_FIRST_TIME)}
             onSubmit={submitPawn}
           />
           <aside className="side-ledger">
@@ -338,7 +394,14 @@ function GameApp() {
               />
             ) : null}
           </aside>
-          <ItemShelf player={player} onBuy={handleBuy} />
+          <ItemShelf
+            getInsufficientHint={insufficientHint}
+            insufficientItemId={guidanceMode === "novice" ? insufficientItemId : undefined}
+            player={player}
+            showGuidance={canShowGuidance(GUIDANCE_NODES.SHELF_FIRST_TIME)}
+            onBuy={handleBuy}
+            onGuidanceVisible={() => markGuidanceShown(GUIDANCE_NODES.SHELF_FIRST_TIME)}
+          />
         </section>
       );
     }
@@ -346,6 +409,7 @@ function GameApp() {
     if (state.phase === "lotOffer") {
       return (
         <LotDrawer
+          guidanceMode={guidanceMode}
           onDraw={() => {
             audioEngine.playLot();
             dispatch({ type: "DRAW_LOT", result: drawLot() });
@@ -371,6 +435,10 @@ function GameApp() {
                 type="button"
                 onClick={() => {
                   audioEngine.playLeave();
+                  shownGuidanceRef.current.clear();
+                  shownInsufficientItemRef.current.clear();
+                  setGuidanceMode(null);
+                  setInsufficientItemId(undefined);
                   dispatch({ type: "LEAVE" });
                 }}
               >

@@ -247,7 +247,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (!canAfford(state.player.resources, item.price, state.player.priceMultiplier)) {
         return {
           ...state,
-          lastDialog: pickOne(insufficientDialogs)
+          lastDialog: insufficientDialogs[0]
         };
       }
 

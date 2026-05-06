@@ -17,6 +17,8 @@ export type ItemTier = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 99;
 
 export type EntryIntent = "wander" | "relief";
 
+export type GuidanceMode = "novice" | "veteran";
+
 export type Item = {
   id: number;
   name: string;

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { resourceLabels, resourceOrder } from "../data/fates";
 import type { PawnAmount, PawnInput, ResourceKey, ResourceMap } from "../data/types";
 import { formatMoney, getPawnTarget, resourceName } from "../game/rules";
@@ -10,6 +10,8 @@ type PawnFormProps = {
   isEntry: boolean;
   onSubmit: (input: PawnInput) => void;
   onCancel?: () => void;
+  showGuidance?: boolean;
+  onGuidanceVisible?: () => void;
 };
 
 const pawnAmounts: PawnAmount[] = [3, 7, 10];
@@ -19,7 +21,9 @@ export function PawnForm({
   canSellAgain,
   isEntry,
   onSubmit,
-  onCancel
+  onCancel,
+  showGuidance = false,
+  onGuidanceVisible
 }: PawnFormProps) {
   const [resourceFrom, setResourceFrom] = useState<ResourceKey>("chi");
   const [resourceTo, setResourceTo] = useState<ResourceKey>("chi");
@@ -38,12 +42,23 @@ export function PawnForm({
     [amountFrom, canSellAgain, isEntry, itemName, itemStory, resourceFrom, resources]
   );
 
+  useEffect(() => {
+    if (showGuidance) onGuidanceVisible?.();
+  }, [onGuidanceVisible, showGuidance]);
+
   return (
     <section className="paper-panel pawn-panel">
       <div className="section-heading">
         <span>{isEntry ? "入门典当" : "再典一物"}</span>
-        <small>一两入柜，七钱出门</small>
+        <small>一两入柜，七钱出门。罗刹海市从不做足秤买卖。</small>
       </div>
+
+      {showGuidance ? (
+        <div className="guidance-inline">
+          <p>客官身上哪一份最重？</p>
+          <p>取出一份，老朽给你称一称，换些别的。</p>
+        </div>
+      ) : null}
 
       <div className="choice-grid">
         {resourceOrder.map((key) => (
