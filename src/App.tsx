@@ -70,6 +70,7 @@ function GameApp() {
   const receiptFateRef = useRef<HTMLDivElement>(null);
   const receiptRef = useRef<HTMLDivElement>(null);
   const ritualDoneRef = useRef(false);
+  const fateRequestRef = useRef(0);
   const lastPhaseRef = useRef(state.phase);
   const [veil, setVeil] = useState<{ stamp: string; text: string }>();
   const player = state.player;
@@ -118,10 +119,13 @@ function GameApp() {
   async function startGame() {
     if (ritualDoneRef.current) return;
     ritualDoneRef.current = true;
+    const requestId = fateRequestRef.current + 1;
+    fateRequestRef.current = requestId;
     audioEngine.playSeal();
     setIntroStage("fateLoading");
     const resources = generateInitialResources();
     const fate = await requestFate(resources, entryIntent);
+    if (requestId !== fateRequestRef.current) return;
     dispatch({ type: "START_WITH_FATE", entryIntent, resources, fate, llmLoading: false });
   }
 
@@ -162,6 +166,7 @@ function GameApp() {
 
   function resetGame() {
     void audioEngine.unlock().then(() => audioEngine.playDoor());
+    fateRequestRef.current += 1;
     ritualDoneRef.current = false;
     setIntroStage("opening");
     setEntryIntent("relief");

@@ -134,24 +134,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "SET_FATE_RESULT": {
       if (!state.player) return state;
-      if (state.player.changedFate) return state;
+      // 命牌一旦落案，不再用后到的异步命格覆写，避免用户看到卡面闪换。
       return {
         ...state,
-        player: {
-          ...state.player,
-          fateName: action.fate.name,
-          fateText: action.fate.text,
-          fateDetail: action.fate.detail,
-          fateStory: action.fate.story,
-          fateHook: action.fate.hook,
-          fateSource: action.fate.source,
-          storyBeats: [
-            ...state.player.storyBeats.filter(
-              (beat) => beat.tone !== "fate" || !beat.title.startsWith("命牌：")
-            ),
-            createFateBeat(createId("beat"), action.fate)
-          ]
-        },
         llm: { ...state.llm, fate: action.fate.source === "llm" ? "done" : "fallback" }
       };
     }
