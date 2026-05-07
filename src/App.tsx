@@ -16,7 +16,6 @@ import { PawnForm } from "./components/PawnForm";
 import { PhraseAdmin } from "./components/PhraseAdmin";
 import { ReceiptAssemble } from "./components/ReceiptAssemble";
 import { ResourceLedger } from "./components/ResourceLedger";
-import { ShareButton } from "./components/ShareButton";
 import { SceneImage } from "./components/SceneImage";
 import { ShopScene } from "./components/ShopScene";
 import { ShopkeeperDialog } from "./components/ShopkeeperDialog";
@@ -25,6 +24,7 @@ import { SoundToggle } from "./components/SoundToggle";
 import { StoryPage } from "./components/StoryPage";
 import { StoryLedger } from "./components/StoryLedger";
 import { TransitionVeil } from "./components/TransitionVeil";
+import { FateReceiptExportButton } from "./components/export/FateReceiptExportButton";
 import { StoryCardExportButton } from "./components/export/StoryCardExportButton";
 import { YezhangModal } from "./components/yezhang/YezhangModal";
 import { resourceLabels, resourceOrder } from "./data/fates";
@@ -81,7 +81,6 @@ function GameApp() {
     { item: Item; before: ResourceMap; after: ResourceMap } | undefined
   >();
   const fateRef = useRef<HTMLDivElement>(null);
-  const receiptFateRef = useRef<HTMLDivElement>(null);
   const receiptRef = useRef<HTMLDivElement>(null);
   const ritualDoneRef = useRef(false);
   const fateRequestRef = useRef(0);
@@ -355,7 +354,7 @@ function GameApp() {
             <FateCard player={player} ref={fateRef} />
             {guidanceMode ? (
               <div className="action-row center">
-                <ShareButton targetRef={fateRef} filename="罗刹当铺-命格卡.png" label="导出命格卡" />
+                <FateReceiptExportButton label="导出命格卡" player={player} type="fate" />
                 <button
                   className="ghost-button"
                   disabled={player.changedFate || player.resources.hui < 10}
@@ -515,12 +514,9 @@ function GameApp() {
         <section className="two-column">
           <div className="card-stage">
             <ReceiptAssemble player={player} cardRef={receiptRef} />
-            <div className="offscreen-export">
-              <FateCard player={player} ref={receiptFateRef} />
-            </div>
             <div className="action-row center">
-              <ShareButton targetRef={receiptRef} filename="罗刹当铺-当票卡.png" label="导出当票卡" />
-              <ShareButton targetRef={receiptFateRef} filename="罗刹当铺-命格卡.png" label="导出命格卡" />
+              <FateReceiptExportButton label="导出当票卡" player={player} type="receipt" />
+              <FateReceiptExportButton label="导出命格卡" player={player} type="fate" />
               {player.storyId && player.nightStory ? (
                 <StoryCardExportButton
                   label="导出命主故事卡"

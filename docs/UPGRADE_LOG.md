@@ -33,6 +33,21 @@
 - `npm run lint` 已通过。
 - `npm run build` 已通过。
 
+### 2026-05-08 命格卡与当票卡导出修复
+
+提交计划：`fix(export): render fate and receipt cards with canvas`
+
+修复内容：
+
+- 命格卡导出改为 Canvas 直绘，不再依赖 `html2canvas` 截取 DOM。
+- 当票卡导出改为 Canvas 直绘，不再依赖 `html2canvas` 截取 DOM。
+- 命格卡、当票卡、命主故事卡统一为生成图片预览，微信内可长按保存。
+
+验证状态：
+
+- `npm run lint` 已通过。
+- `npm run build` 已通过。
+
 ## 2026-05-07 v1.5.1 抽签机制升级
 
 提交计划：`feat(lot): add v1.5.1 dual-track lot flow`
