@@ -369,8 +369,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           },
           lastDialog:
             deduction > 0
-              ? "下签。慧折半两，便就此结当吧。"
-              : "下签。客官慧已尽，未能再扣。"
+              ? "下签。扣慧五钱。"
+              : "下签。慧已尽，未能再扣。"
         };
       }
 

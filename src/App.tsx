@@ -50,7 +50,8 @@ import { clearYezhang, loadYezhang, saveStoryToYezhang } from "./services/yezhan
 
 const GUIDANCE_NODES = {
   PAWN_FIRST_TIME: "pawn_first_time",
-  SHELF_FIRST_TIME: "shelf_first_time"
+  SHELF_FIRST_TIME: "shelf_first_time",
+  RESOURCE_INSUFFICIENT: "resource_insufficient"
 } as const;
 
 export default function App() {
@@ -85,7 +86,6 @@ function GameApp() {
   const ritualDoneRef = useRef(false);
   const fateRequestRef = useRef(0);
   const shownGuidanceRef = useRef<Set<string>>(new Set());
-  const shownInsufficientItemRef = useRef<Set<number>>(new Set());
   const lastPhaseRef = useRef(state.phase);
   const [veil, setVeil] = useState<{ stamp: string; text: string }>();
   const [yezhangOpen, setYezhangOpen] = useState(false);
@@ -213,7 +213,6 @@ function GameApp() {
     void audioEngine.unlock().then(() => audioEngine.playDoor());
     fateRequestRef.current += 1;
     shownGuidanceRef.current.clear();
-    shownInsufficientItemRef.current.clear();
     ritualDoneRef.current = false;
     setIntroStage("opening");
     setEntryIntent("relief");
@@ -232,8 +231,8 @@ function GameApp() {
     if (!item) return;
     if (!canAfford(player.resources, item.price, player.priceMultiplier)) {
       audioEngine.playDeny();
-      if (guidanceMode === "novice" && !shownInsufficientItemRef.current.has(itemId)) {
-        shownInsufficientItemRef.current.add(itemId);
+      if (guidanceMode === "novice" && !shownGuidanceRef.current.has(GUIDANCE_NODES.RESOURCE_INSUFFICIENT)) {
+        shownGuidanceRef.current.add(GUIDANCE_NODES.RESOURCE_INSUFFICIENT);
         setInsufficientItemId(itemId);
       } else {
         setInsufficientItemId(undefined);
@@ -547,7 +546,6 @@ function GameApp() {
                 onClick={() => {
                   audioEngine.playLeave();
                   shownGuidanceRef.current.clear();
-                  shownInsufficientItemRef.current.clear();
                   clearLotSession();
                   setGuidanceMode(null);
                   setInsufficientItemId(undefined);

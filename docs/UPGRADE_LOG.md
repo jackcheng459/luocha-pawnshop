@@ -1,5 +1,21 @@
 # 罗刹当铺升级记录
 
+## 2026-05-08 v1.3 引导文案最终覆盖
+
+提交计划：`fix(guidance): align guide copy with v1.3`
+
+修复内容：
+
+- 明确引导文案以 v1.3 为当前唯一生效版本，v1.0、v1.1、v1.2 仅作为历史归档。
+- 命数不足微提示改为按 `resource_insufficient` 节点在本局内只显示一次，不再按商品重复触发。
+- 抽签触发与上签、中签、下签结果文案统一到 v1.3 口径。
+- 清理抽签弹窗和侧栏里的旧版残留话术，避免旧文案覆盖 v1.3 体验。
+
+验证状态：
+
+- `npm run lint` 已通过。
+- `npm run build` 已通过。
+
 ## 2026-05-07 v1.5.2 命主故事卡与夜账
 
 提交计划：`feat(story): add story card export and yezhang index`
@@ -83,6 +99,7 @@
 
 ## 已推送基线
 
+- `2d5f65e fix(export): render fate and receipt cards with canvas`：已将命格卡、当票卡导出改为 Canvas 直绘。
 - `95a9446 Add v1.2 guidance flow`：已落地 v1.2 引导流程。
 - `59380d7 Fix fate ritual title and stabilize fate card`：已修正“摇签问命”标题，并稳定命格卡不再被后到异步结果覆写。
 - `a9b3089 Prepare Wispbyte self-host deployment`：已准备 Wispbyte 自托管包。

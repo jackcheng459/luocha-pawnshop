@@ -84,9 +84,9 @@ export const receiptVerbs = {
 };
 
 export const lotDialogs = {
-  shang: "上签。今夜给你一次反悔，别浪费。",
-  zhong: "中签。想要的还在，价钱先翻脸。",
-  xia: "下签。半两慧落地，换你少问一句为什么。"
+  shang: "上签。反悔不加价。",
+  zhong: "中签。再做一笔，加倍。",
+  xia: "下签。扣慧五钱。"
 };
 
 export const farewellByPath = {

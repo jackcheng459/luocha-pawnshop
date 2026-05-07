@@ -116,14 +116,14 @@ function buildResultText(
   huiDeducted?: number
 ) {
   if (result === "shang") {
-    return novice ? "上签。今夜难得，反悔不加价。" : "上签。反悔不加价。";
+    return novice ? "上签：今夜难得，反悔不加价。" : "上签。反悔不加价。";
   }
   if (result === "zhong") {
-    if (noZhongMove) return "中签。再做一笔。但客官身上已无可典，亦无可买。";
-    return novice ? "中签。再做一笔。买价翻倍，卖损耗加倍。" : "中签。再做一笔，加倍。";
+    if (noZhongMove) return "中签：再做一笔。但客官身上已无可典，亦无可买。";
+    return novice ? "中签：再做一笔。买价翻倍，卖损耗加倍。" : "中签。再做一笔，加倍。";
   }
   if (huiDeducted === 0) {
-    return "下签。今夜运气不济。但客官慧已尽，未能再扣。";
+    return "下签：今夜运气不济。但客官慧已尽，未能再扣。";
   }
-  return novice ? "下签。今夜运气不济，慧折半两。便就此结当吧。" : "下签。扣慧五钱。";
+  return novice ? "下签：今夜运气不济，慧折半两。便就此结当吧。" : "下签。扣慧五钱。";
 }
