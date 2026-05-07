@@ -25,7 +25,7 @@ import { SoundToggle } from "./components/SoundToggle";
 import { StoryPage } from "./components/StoryPage";
 import { StoryLedger } from "./components/StoryLedger";
 import { TransitionVeil } from "./components/TransitionVeil";
-import { FateStoryCard } from "./components/export/FateStoryCard";
+import { StoryCardExportButton } from "./components/export/StoryCardExportButton";
 import { YezhangModal } from "./components/yezhang/YezhangModal";
 import { resourceLabels, resourceOrder } from "./data/fates";
 import { items } from "./data/items";
@@ -83,7 +83,6 @@ function GameApp() {
   const fateRef = useRef<HTMLDivElement>(null);
   const receiptFateRef = useRef<HTMLDivElement>(null);
   const receiptRef = useRef<HTMLDivElement>(null);
-  const receiptStoryRef = useRef<HTMLDivElement>(null);
   const ritualDoneRef = useRef(false);
   const fateRequestRef = useRef(0);
   const shownGuidanceRef = useRef<Set<string>>(new Set());
@@ -519,10 +518,12 @@ function GameApp() {
             <div className="offscreen-export">
               <FateCard player={player} ref={receiptFateRef} />
             </div>
-            {player.storyId && player.nightStory ? (
-              <div className="offscreen-export">
-                <FateStoryCard
-                  ref={receiptStoryRef}
+            <div className="action-row center">
+              <ShareButton targetRef={receiptRef} filename="罗刹当铺-当票卡.png" label="导出当票卡" />
+              <ShareButton targetRef={receiptFateRef} filename="罗刹当铺-命格卡.png" label="导出命格卡" />
+              {player.storyId && player.nightStory ? (
+                <StoryCardExportButton
+                  label="导出命主故事卡"
                   story={{
                     fateName: player.fateName,
                     fateJudgment: player.fateText,
@@ -543,13 +544,6 @@ function GameApp() {
                   }}
                   storyUrl={player.storyQrUrl ?? player.storyUrl}
                 />
-              </div>
-            ) : null}
-            <div className="action-row center">
-              <ShareButton targetRef={receiptRef} filename="罗刹当铺-当票卡.png" label="导出当票卡" />
-              <ShareButton targetRef={receiptFateRef} filename="罗刹当铺-命格卡.png" label="导出命格卡" />
-              {player.storyId && player.nightStory ? (
-                <ShareButton targetRef={receiptStoryRef} filename={`罗刹当铺-${player.fateName}-命主故事.png`} label="导出命主故事卡" />
               ) : null}
               <button
                 className="seal-button"

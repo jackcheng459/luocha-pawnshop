@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { FateStoryRecord } from "../data/types";
 import { fetchFateStory } from "../services/storyClient";
-import { FateStoryCard } from "./export/FateStoryCard";
-import { ShareButton } from "./ShareButton";
+import { StoryCardExportButton } from "./export/StoryCardExportButton";
 
 type StoryPageProps = {
   storyId: string;
@@ -10,7 +9,6 @@ type StoryPageProps = {
 
 export function StoryPage({ storyId }: StoryPageProps) {
   const [story, setStory] = useState<FateStoryRecord | null>();
-  const storyCardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -76,20 +74,17 @@ export function StoryPage({ storyId }: StoryPageProps) {
         <footer className="story-page-footer">
           <small>故事属于这一夜，不属于任何账号。</small>
           <div className="story-page-actions">
-            <ShareButton targetRef={storyCardRef} filename={`罗刹当铺-${story.fateName}-命主故事.png`} label="保存这个故事" />
+            <StoryCardExportButton
+              label="保存这个故事"
+              story={story}
+              storyUrl={`${window.location.origin}/story/${story.storyId}`}
+            />
             <a className="seal-button" href="/">
               我也走一遭
             </a>
           </div>
         </footer>
       </section>
-      <div className="offscreen-export">
-        <FateStoryCard
-          ref={storyCardRef}
-          story={story}
-          storyUrl={`${window.location.origin}/story/${story.storyId}`}
-        />
-      </div>
     </main>
   );
 }

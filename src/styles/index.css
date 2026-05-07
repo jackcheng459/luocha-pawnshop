@@ -1688,6 +1688,66 @@ button {
   padding: 6px;
 }
 
+.story-export-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(10, 5, 3, 0.78);
+  backdrop-filter: blur(10px);
+}
+
+.story-export-panel {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: min(430px, 94vw);
+  max-height: 92vh;
+  padding: 14px;
+  border: 1px solid rgba(216, 194, 154, 0.24);
+  border-radius: 8px;
+  background: rgba(29, 15, 9, 0.94);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.52);
+}
+
+.story-export-panel img {
+  display: block;
+  max-width: 100%;
+  max-height: 78vh;
+  border-radius: 4px;
+  object-fit: contain;
+  user-select: auto;
+  -webkit-user-select: auto;
+  -webkit-touch-callout: default;
+}
+
+.story-export-panel p {
+  margin: 0;
+  color: #d8c29a;
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.story-export-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(216, 194, 154, 0.26);
+  border-radius: 50%;
+  color: #ead8b1;
+  background: rgba(20, 10, 6, 0.72);
+  cursor: pointer;
+}
+
 .story-page-footer small,
 .story-loading,
 .story-missing,

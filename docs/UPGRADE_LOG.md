@@ -18,6 +18,21 @@
 - `npm run lint` 已通过。
 - `npm run build` 已通过。
 
+### 2026-05-07 命主故事卡导出修复
+
+提交计划：`fix(story): render story card export with canvas`
+
+修复内容：
+
+- 命主故事卡导出不再依赖 `html2canvas` 截取离屏 DOM，避免微信内置浏览器截图失败。
+- 新增专用 Canvas 直绘导出按钮，离店页和故事页共用。
+- 导出后弹出图片预览，若浏览器不支持自动下载，可长按图片保存。
+
+验证状态：
+
+- `npm run lint` 已通过。
+- `npm run build` 已通过。
+
 ## 2026-05-07 v1.5.1 抽签机制升级
 
 提交计划：`feat(lot): add v1.5.1 dual-track lot flow`
