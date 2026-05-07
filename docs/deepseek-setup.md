@@ -14,7 +14,7 @@ cp .env.example .env.local
 
 ```bash
 DEEPSEEK_API_KEY=sk-your-real-key
-DEEPSEEK_MODEL=deepseek-v4-flash
+DEEPSEEK_MODEL=deepseek-v4-pro
 ```
 
 3. 本地要测试 Vercel Function 时，用 Vercel dev，而不是只跑 Vite：
@@ -35,7 +35,7 @@ Vite 本身只负责前端开发服务器，`/api/llm` 需要 Vercel dev 才能�
 
 ```text
 DEEPSEEK_API_KEY = 你的 DeepSeek API key
-DEEPSEEK_MODEL = deepseek-v4-flash
+DEEPSEEK_MODEL = deepseek-v4-pro
 ```
 
 4. Environment 选择 `Production`，需要预览环境也可以同时选择 `Preview`
@@ -61,6 +61,8 @@ React 页面
 2. `pawn`：改写典当物名、生成掌柜估价台词
 3. `receipt`：生成当票故事、临别赠言、交易动词
 
+命主故事生成走 `api/story/create.ts`，服务端明确指定 `deepseek-v4-pro`，用于承接 v6.0 命主故事 prompt。
+
 每类调用都有本地 fallback。DeepSeek 失败、超时、返回不合法 JSON 或命中安全词时，主流程不会中断。
 
 ## 线上检查
@@ -73,4 +75,4 @@ https://你的域名/api/llm
 
 返回 `configured: true` 且 `provider: "deepseek"`，说明 Vercel Function 已识别到 `DEEPSEEK_API_KEY`。这个接口只暴露 provider 和 model，不会返回 key。
 
-当前 DeepSeek 请求使用 `deepseek-v4-flash`，并关闭 thinking mode，避免短文本 JSON 任务被推理过程拖慢。前端超时为 12 秒，超时或失败会使用本地文案兜底。
+当前 DeepSeek 请求默认使用 `deepseek-v4-pro`。前端超时或服务端失败时会使用本地文案兜底，主流程不会中断。

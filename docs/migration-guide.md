@@ -27,11 +27,11 @@ v1.5 的数据层已经从业务层拆开。迁移到其他平台或微信小程
 
 ```env
 DEEPSEEK_API_KEY=
-DEEPSEEK_MODEL=deepseek-v4-flash
+DEEPSEEK_MODEL=deepseek-v4-pro
 KV_REST_API_URL=
 KV_REST_API_TOKEN=
 ADMIN_TOKEN=
-VITE_SITE_URL=https://luocha-pawnshop.vercel.app
+VITE_SITE_URL=https://www.luochapawnshop.top
 ```
 
 ## 迁移注意

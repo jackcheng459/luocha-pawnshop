@@ -19,7 +19,7 @@
 | 2 | `shop-facade-mist.jpg` | 开场“雾散见铺”的远景当铺 | AI 生图 | 1920x1080 | 否 | 选 1/6，底部加暗雾渐变，压缩 `<200KB` | 见 Prompt B | P0 |
 | 3 | `shop-interior-main.jpg` | 入店后主背景，承载签筒、货架、交易 UI | AI 生图 | 1600x1200 | 否 | 选 1/6，压暗边缘，中部留 UI 空间，压缩 `<200KB` | 见 Prompt C | P0 |
 | 4 | `shopkeeper-silhouette.webp` | 掌柜对话半身剪影，随台词升起 | AI 生图 + 抠图 + WebP 压缩 | 608x760 | 是 | 绿幕抠图后转 WebP，CSS 简笔剪影兜底 | 见 Prompt D | P0 |
-| 5 | `LotTube.tsx` / `.lot-tube` | 摇签求命核心道具，可摇晃动画 | React + CSS | responsive | 是 | 代码生成旧竹木签筒，材质与店内背景统一，筒内签与弹出签共用样式 | 见道具规格 E | P0 |
+| 5 | `LotTube.tsx` / `.lot-tube` | 摇签问命核心道具，可摇晃动画 | React + CSS | responsive | 是 | 代码生成旧竹木签筒，材质与店内背景统一，筒内签与弹出签共用样式 | 见道具规格 E | P0 |
 | 6 | `fate-stick.svg` | 从签筒弹出的签，可展开为命牌 | SVG | 80x360 | 是 | 手写 SVG，支持 spring 弹出和旋转 | 见 SVG 规格 F | P0 |
 | 7 | `cinnabar-seal.svg` | 命格朱印、当票朱印、物品获得“已得” | SVG + CSS | 240x240 | 是 | 动态文字由组件渲染，盖落动画用 CSS / Framer Motion | 见 SVG 规格 G | P1 |
 | 8 | `red-lantern.svg` | 开场、店内、展示图局部装饰 | SVG | 180x260 | 是 | 手写 SVG，灯芯可做 opacity 呼吸 | 见 SVG 规格 H | P1 |
@@ -153,7 +153,7 @@ negative: 面部表情、彩色、写实、3D、现代服饰、卡通、蓝色�
 - 字体系统：`Ma Shan Zheng`、`ZCOOL XiaoWei`、`Noto Serif SC`。
 - 开场雾散见铺：AI 远景图 + 三层 CSS 雾气 + 标题淡入。
 - 入店过渡：远景图 scale + blur + fade，点击可跳过。
-- 摇签求命：旧竹木签筒居中摇晃、同质感竹签弹出、朱印盖落，双击或按钮可跳过。
+- 摇签问命：旧竹木签筒居中摇晃、同质感竹签弹出、朱印盖落。
 - 掌柜剪影 + 打字机：透明 WebP 剪影，图片失败时回落 CSS 剪影。
 - 物品获得：获得卡、朱印盖落、命数变化 CountUp。
 - 当票拼合：当票展开后朱印盖落。

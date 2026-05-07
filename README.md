@@ -1,13 +1,14 @@
 # 罗刹当铺
 
-《罗刹当铺》是一个 React + Vite + Tailwind CSS 实现的 H5 志怪小游戏。玩家入店后抽取命签，以身上的“气、尘、贪、妄、悔”为筹码完成三笔典当，最后得到一张带故事评语的当票卡。
+《罗刹当铺》是一个 React + Vite + Tailwind CSS 实现的 H5 志怪小游戏。玩家入店后抽取命签，以身上的“痴、嗔、贪、惘、慧”为筹码，卖三笔或买三笔后触发签运，最后得到一张带命主故事入口的当票卡。
 
-线上体验：https://luocha-pawnshop.vercel.app
+线上体验：https://www.luochapawnshop.top
 
 ## 作品亮点
 
-- 90 到 120 秒完整体验：雾门入店、掌柜问来意、摇命签、典当交易、续签和当票离店形成一条完整叙事。
-- DeepSeek API 通过 Vercel Function 代理调用，前端不暴露 key；所有 LLM 结果都有本地 fallback，接口失败也不影响主流程。
+- 90 到 120 秒完整体验：雾门入店、掌柜问来意、摇签问命、卖物取物、签落改局、当票离店形成一条完整叙事。
+- DeepSeek API 通过 Vercel Function 代理调用，前端不暴露 key；命主故事生成指定 `deepseek-v4-pro`，所有 LLM 结果都有本地 fallback，接口失败也不影响主流程。
+- v1.5.1 抽签机制：卖满 3 笔或买满 3 笔强制抽签，上签可反悔，中签须加倍再做一笔，下签折慧五钱。
 - 命格卡和当票卡支持一键导出 PNG，适合比赛展示和社交分享。
 - 古风纸纹、墨幕转场、掌柜台词、程序化音效与 CC0 背景音乐共同构成“聊斋骨”的店内氛围。
 
@@ -40,7 +41,8 @@ npx vercel@latest dev
 
 ```text
 DEEPSEEK_API_KEY=your_deepseek_api_key
-DEEPSEEK_MODEL=deepseek-v4-flash
+DEEPSEEK_MODEL=deepseek-v4-pro
+VITE_SITE_URL=https://www.luochapawnshop.top
 ```
 
 线上部署时在 Vercel Project Settings 或 Vercel CLI 中配置同名环境变量。
@@ -61,6 +63,7 @@ npx vercel@latest deploy --prod
 - `src/data/fateStories.ts`：命签故事与分享文案
 - `src/services/llmClient.ts`：前端 LLM 调用与 fallback
 - `api/llm.ts`：Vercel Function 代理 DeepSeek API
+- `api/story/create.ts`：命主故事生成接口，服务端指定 `deepseek-v4-pro`
 - `public/images/`：游戏视觉资产
 - `public/audio/`：音频资产与授权说明
 - `docs/`：设计、接入和素材说明
