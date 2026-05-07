@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { DoorOpen, RefreshCcw } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CrisisFallback } from "./components/CrisisFallback";
@@ -25,6 +25,8 @@ import { SoundToggle } from "./components/SoundToggle";
 import { StoryPage } from "./components/StoryPage";
 import { StoryLedger } from "./components/StoryLedger";
 import { TransitionVeil } from "./components/TransitionVeil";
+import { FateStoryCard } from "./components/export/FateStoryCard";
+import { YezhangModal } from "./components/yezhang/YezhangModal";
 import { resourceLabels, resourceOrder } from "./data/fates";
 import { items } from "./data/items";
 import type { EntryIntent, GuidanceMode, Item, PawnInput, ResourceMap } from "./data/types";
@@ -44,6 +46,7 @@ import { requestFate, requestPawn, requestReceipt } from "./services/llmClient";
 import { audioEngine } from "./services/audioEngine";
 import { createFateStory } from "./services/storyClient";
 import { capturePawnContribution } from "./services/contributionClient";
+import { clearYezhang, loadYezhang, saveStoryToYezhang } from "./services/yezhang";
 
 const GUIDANCE_NODES = {
   PAWN_FIRST_TIME: "pawn_first_time",
@@ -80,14 +83,19 @@ function GameApp() {
   const fateRef = useRef<HTMLDivElement>(null);
   const receiptFateRef = useRef<HTMLDivElement>(null);
   const receiptRef = useRef<HTMLDivElement>(null);
+  const receiptStoryRef = useRef<HTMLDivElement>(null);
   const ritualDoneRef = useRef(false);
   const fateRequestRef = useRef(0);
   const shownGuidanceRef = useRef<Set<string>>(new Set());
   const shownInsufficientItemRef = useRef<Set<number>>(new Set());
   const lastPhaseRef = useRef(state.phase);
   const [veil, setVeil] = useState<{ stamp: string; text: string }>();
+  const [yezhangOpen, setYezhangOpen] = useState(false);
+  const [yezhangConfirmingClear, setYezhangConfirmingClear] = useState(false);
+  const [yezhangVersion, setYezhangVersion] = useState(0);
   const player = state.player;
   const screenKey = player ? state.phase : introStage;
+  const yezhangRecords = useMemo(() => loadYezhang().records, [yezhangVersion]);
 
   useEffect(() => {
     if (lastPhaseRef.current === state.phase) return;
@@ -114,6 +122,8 @@ function GameApp() {
     if (!player || state.phase !== "receipt" || player.storyStatus !== "idle") return;
     dispatch({ type: "SET_STORY_LOADING" });
     createFateStory(player).then(({ record, storyQrUrl, storyUrl, usedFallback }) => {
+      saveStoryToYezhang(record);
+      setYezhangVersion((version) => version + 1);
       dispatch({ type: "SET_STORY_RESULT", story: record, storyQrUrl, storyUrl, usedFallback });
     });
   }, [player, state.phase]);
@@ -295,7 +305,17 @@ function GameApp() {
   function renderMain() {
     if (!player) {
       if (introStage === "opening") {
-        return <OpeningScene onEnter={enterShop} />;
+        return (
+          <OpeningScene
+            showYezhang={yezhangRecords.length > 0}
+            onEnter={enterShop}
+            onOpenYezhang={() => {
+              audioEngine.playPaper();
+              setYezhangOpen(true);
+              setYezhangConfirmingClear(false);
+            }}
+          />
+        );
       }
       if (introStage === "entering") {
         return <DoorTransition onDone={() => setIntroStage("question")} />;
@@ -499,9 +519,38 @@ function GameApp() {
             <div className="offscreen-export">
               <FateCard player={player} ref={receiptFateRef} />
             </div>
+            {player.storyId && player.nightStory ? (
+              <div className="offscreen-export">
+                <FateStoryCard
+                  ref={receiptStoryRef}
+                  story={{
+                    fateName: player.fateName,
+                    fateJudgment: player.fateText,
+                    fateDetail: player.fateDetail,
+                    storyId: player.storyId,
+                    storyText: player.nightStory,
+                    generatedAt: Date.now(),
+                    llmModel: "receipt-state",
+                    promptVersion: "v1.5.2-story-card",
+                    initialResources: player.originalResources,
+                    finalResources: player.resources,
+                    trades: [],
+                    drewLot: player.drewLot,
+                    lotResult: player.lotResult,
+                    timestamp: player.storyTimestamp ?? player.nightLabel,
+                    seasonTerm: player.seasonTerm,
+                    nightLabel: player.nightLabel
+                  }}
+                  storyUrl={player.storyQrUrl ?? player.storyUrl}
+                />
+              </div>
+            ) : null}
             <div className="action-row center">
               <ShareButton targetRef={receiptRef} filename="罗刹当铺-当票卡.png" label="导出当票卡" />
               <ShareButton targetRef={receiptFateRef} filename="罗刹当铺-命格卡.png" label="导出命格卡" />
+              {player.storyId && player.nightStory ? (
+                <ShareButton targetRef={receiptStoryRef} filename={`罗刹当铺-${player.fateName}-命主故事.png`} label="导出命主故事卡" />
+              ) : null}
               <button
                 className="seal-button"
                 type="button"
@@ -575,6 +624,24 @@ function GameApp() {
       </AnimatePresence>
       <TransitionVeil stamp={veil?.stamp ?? "none"} text={veil?.text} />
       <ShopkeeperDialog text={activeDialog} onDone={() => setActiveDialog(undefined)} />
+      {yezhangOpen ? (
+        <YezhangModal
+          confirmingClear={yezhangConfirmingClear}
+          records={yezhangRecords}
+          onAskClear={() => setYezhangConfirmingClear(true)}
+          onCancelClear={() => setYezhangConfirmingClear(false)}
+          onClose={() => {
+            setYezhangOpen(false);
+            setYezhangConfirmingClear(false);
+          }}
+          onConfirmClear={() => {
+            clearYezhang();
+            setYezhangVersion((version) => version + 1);
+            setYezhangConfirmingClear(false);
+            setYezhangOpen(false);
+          }}
+        />
+      ) : null}
       <ItemObtainOverlay
         after={obtained?.after}
         before={obtained?.before}

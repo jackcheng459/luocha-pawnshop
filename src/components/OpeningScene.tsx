@@ -1,13 +1,15 @@
 import { motion } from "framer-motion";
-import { DoorOpen } from "lucide-react";
+import { BookOpen, DoorOpen } from "lucide-react";
 import { MistLayer } from "./MistLayer";
 import { SceneImage } from "./SceneImage";
 
 type OpeningSceneProps = {
   onEnter: () => void;
+  onOpenYezhang?: () => void;
+  showYezhang?: boolean;
 };
 
-export function OpeningScene({ onEnter }: OpeningSceneProps) {
+export function OpeningScene({ onEnter, onOpenYezhang, showYezhang }: OpeningSceneProps) {
   return (
     <section className="opening-scene" onClick={(event) => event.detail > 1 && onEnter()}>
       <SceneImage
@@ -31,6 +33,20 @@ export function OpeningScene({ onEnter }: OpeningSceneProps) {
           <span>推门入店</span>
         </button>
       </motion.div>
+      {showYezhang ? (
+        <button
+          className="yezhang-entry"
+          type="button"
+          title="夜账"
+          aria-label="夜账"
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenYezhang?.();
+          }}
+        >
+          <BookOpen size={18} strokeWidth={1.8} />
+        </button>
+      ) : null}
     </section>
   );
 }

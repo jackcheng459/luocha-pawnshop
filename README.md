@@ -9,7 +9,8 @@
 - 90 到 120 秒完整体验：雾门入店、掌柜问来意、摇签问命、卖物取物、签落改局、当票离店形成一条完整叙事。
 - DeepSeek API 通过 Vercel Function 代理调用，前端不暴露 key；命主故事生成指定 `deepseek-v4-pro`，所有 LLM 结果都有本地 fallback，接口失败也不影响主流程。
 - v1.5.1 抽签机制：卖满 3 笔或买满 3 笔强制抽签，上签可反悔，中签须加倍再做一笔，下签折慧五钱。
-- 命格卡和当票卡支持一键导出 PNG，适合比赛展示和社交分享。
+- 命格卡、当票卡和命主故事卡支持一键导出 PNG，适合比赛展示和社交分享。
+- v1.5.2 夜账机制：不注册、不登录，只在本机浏览器记下 storyId 索引，让玩家能找回自己走过的几夜。
 - 古风纸纹、墨幕转场、掌柜台词、程序化音效与 CC0 背景音乐共同构成“聊斋骨”的店内氛围。
 
 ## 技术栈
@@ -62,6 +63,7 @@ npx vercel@latest deploy --prod
 - `src/game/rules.ts`：交易、资源和价格规则
 - `src/data/fateStories.ts`：命签故事与分享文案
 - `src/services/llmClient.ts`：前端 LLM 调用与 fallback
+- `src/services/yezhang.ts`：本地夜账索引读写
 - `api/llm.ts`：Vercel Function 代理 DeepSeek API
 - `api/story/create.ts`：命主故事生成接口，服务端指定 `deepseek-v4-pro`
 - `public/images/`：游戏视觉资产
