@@ -13,7 +13,9 @@ export function buildFateStoryInput(player: PlayerState): FateStoryInput {
     trades: player.trades.map(summarizeTrade),
     drewLot: player.drewLot,
     lotResult: player.lotResult,
+    lotEffect: buildLotEffect(player),
     extraLotAccepted: inferExtraLotAccepted(player),
+    lotRedoneTradeType: inferLotRedoneTradeType(player),
     timestamp: player.storyTimestamp ?? getClassicalTimestamp(),
     seasonTerm: player.seasonTerm,
     nightLabel: player.nightLabel
@@ -41,8 +43,8 @@ ${trimSentence(trade.itemStory ?? "客收之，未语。")}`;
     });
   const lotLine = input.lotResult
     ? `签筒忽又自摇，出一签，${lotLabel(input.lotResult)}。
-${input.lotResult === "xia" ? "掌柜曰：“此签为定，赔半两慧。”" : "掌柜曰：“今夜难得，反悔不加价。”"}
-${input.extraLotAccepted ? "客颔首。" : "客摇首，未要。"}`
+${lotEffectLine(input)}
+${input.extraLotAccepted ? "客颔首，依签又做一笔。" : "客拱手，认了此签。"}`
     : "";
   const close = input.lotResult ? "掌柜拾起两支签，置回筒中。" : "掌柜拾起签，置回筒中。";
 
@@ -93,8 +95,35 @@ function summarizeTrade(trade: TradeRecord): FateStoryInput["trades"][number] {
 }
 
 function inferExtraLotAccepted(player: PlayerState): boolean {
-  if (!player.lotResult || player.lotResult === "xia") return false;
-  return player.trades.length > 3;
+  if (!player.lotEntry?.redoneAction) return false;
+  return player.lotResult === "shang" || player.lotResult === "zhong";
+}
+
+function inferLotRedoneTradeType(player: PlayerState): "pawn" | "buy" | undefined {
+  const action = player.lotEntry?.redoneAction;
+  if (action?.type === "pawn" || action?.type === "buy") return action.type;
+  return undefined;
+}
+
+function buildLotEffect(player: PlayerState): string | undefined {
+  if (!player.lotResult) return undefined;
+  if (player.lotEntry?.description) return player.lotEntry.description;
+  if (player.lotResult === "shang") return "今夜难得，反悔不加价";
+  if (player.lotResult === "zhong") return "再做一笔，买价翻倍，卖损耗加倍";
+  const deduction = player.lotHuiDeducted ?? 0;
+  return deduction > 0 ? `扣慧${formatMoneyText(deduction)}` : "慧已尽，未能再扣";
+}
+
+function lotEffectLine(input: FateStoryInput): string {
+  if (input.lotResult === "shang") {
+    return `掌柜曰：“今夜难得，反悔不加价。”${input.lotEffect ? `账下注：${input.lotEffect}。` : ""}`;
+  }
+  if (input.lotResult === "zhong") {
+    return `掌柜曰：“再做一笔，加倍。”${input.lotEffect ? `账下注：${input.lotEffect}。` : ""}`;
+  }
+  return input.lotEffect
+    ? `掌柜曰：“下签。”账下注：${input.lotEffect}。`
+    : "掌柜曰：“下签。扣慧五钱。”";
 }
 
 function buildHuiBladeLine(input: FateStoryInput): string {

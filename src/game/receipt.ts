@@ -5,7 +5,7 @@ import {
   warmFarewells
 } from "../data/templates";
 import { fallbackPhrase, inferPhraseType } from "../data/goldenPhrases";
-import type { PlayerState, ResourceKey, TradeRecord } from "../data/types";
+import type { LotEntry, PlayerState, ResourceKey, TradeRecord } from "../data/types";
 import { resourceName, formatMoney, pickOne } from "./rules";
 
 export function fallbackFarewell(player: PlayerState): string {
@@ -55,6 +55,26 @@ export function fallbackReceiptStory(player: PlayerState): { title: string; text
     .map((trade) => items.find((item) => item.id === trade.itemId))
     .filter(Boolean)
     .sort((a, b) => (b?.tier ?? 0) - (a?.tier ?? 0))[0];
+
+  if (player.lotEntry) {
+    const lotLine = formatLotEntryLine(player.lotEntry);
+    if (player.lotResult === "shang") {
+      return {
+        title: "上签照账",
+        text: trimStory(`${entryLine}${fateLine}签落上签，掌柜只添一行：${lotLine}。这一夜不是给人重来，是叫人知道哪一笔真想留下。`)
+      };
+    }
+    if (player.lotResult === "zhong") {
+      return {
+        title: "中签加账",
+        text: trimStory(`${entryLine}${fateLine}签落中签，账本未合，又添一笔：${lotLine}。掌柜没催你，只把多出来的代价写得很直。`)
+      };
+    }
+    return {
+      title: "下签入账",
+      text: trimStory(`${entryLine}${fateLine}签落下签，${lotLine}。掌柜没罚你，只把今夜的不顺也写进账里。`)
+    };
+  }
 
   if (player.lotResult === "xia") {
     return {
@@ -127,6 +147,17 @@ export function formatTradeLine(trade: TradeRecord): string {
   }
 
   return "以一念，换一夜";
+}
+
+export function formatLotEntryLine(entry: LotEntry): string {
+  if (entry.type === "shang") {
+    return entry.description ? `上签，${entry.description}` : "上签，反悔不加价";
+  }
+  if (entry.type === "zhong") {
+    return entry.description ? `中签，${entry.description}` : "中签，再做一笔，加倍";
+  }
+  if (entry.huiDeducted === 0) return "下签，慧已尽，未能再扣";
+  return entry.description ? `下签，${entry.description}` : "下签，扣慧五钱";
 }
 
 function formatPriceShort(price: Partial<Record<ResourceKey, number>>): string {

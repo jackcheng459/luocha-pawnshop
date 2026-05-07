@@ -92,10 +92,10 @@ export function applySideEffects(
   return clampResources(next);
 }
 
-export function computePawn(input: PawnInput, current: ResourceMap) {
+export function computePawn(input: PawnInput, current: ResourceMap, rate = 0.7) {
   const resourceTo = getPawnTarget(input);
   const amountFrom = Math.min(input.amountFrom, current[input.resourceFrom]) as PawnAmount;
-  const amountTo = Math.floor(amountFrom * 0.7);
+  const amountTo = Math.floor(amountFrom * rate);
   const resources = { ...current };
   resources[input.resourceFrom] -= amountFrom;
   resources[resourceTo] += amountTo;

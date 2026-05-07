@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import { motion } from "framer-motion";
 import type { PlayerState } from "../data/types";
 import { sanitizeShareText } from "../game/compliance";
-import { formatTradeLine } from "../game/receipt";
+import { formatLotEntryLine, formatTradeLine } from "../game/receipt";
 import { audioEngine } from "../services/audioEngine";
 import { ResourceLedger } from "./ResourceLedger";
 import { StoryQr } from "./StoryQr";
@@ -42,6 +42,12 @@ export const ReceiptCard = forwardRef<HTMLDivElement, ReceiptCardProps>(function
           <p key={trade.id}>{sanitizeShareText(formatTradeLine(trade), "以一念，换一夜")}</p>
         ))}
       </div>
+      {player.lotEntry ? (
+        <div className="receipt-lot-entry">
+          <span>签落</span>
+          <p>{sanitizeShareText(formatLotEntryLine(player.lotEntry), "签落，命已入账")}</p>
+        </div>
+      ) : null}
       <ResourceLedger resources={player.resources} original={player.originalResources} compact />
       <p className="receipt-farewell">{farewell}</p>
       <StoryQr caption="扫读命主故事" url={player.storyQrUrl ?? player.storyUrl} />

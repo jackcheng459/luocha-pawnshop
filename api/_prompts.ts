@@ -86,9 +86,14 @@ function toStoryPromptInput(input: FateStoryInput) {
         itemName: trade.itemName,
         cost: trade.itemPrice
       })),
-    drewLot: input.drewLot,
-    lotResult: input.lotResult,
-    lotAccepted: Boolean(input.extraLotAccepted),
+    lot: input.drewLot
+      ? {
+          result: input.lotResult,
+          effect: input.lotEffect,
+          accepted: Boolean(input.extraLotAccepted),
+          redoneTradeType: input.lotRedoneTradeType
+        }
+      : null,
     timestamp: parseClassicalTimestamp(input.timestamp)
   };
 }
@@ -127,7 +132,9 @@ export function buildLegacyStoryPromptInput(input: FateStoryInput) {
         effect: trade.itemStory
       })),
     extraLotResult: input.lotResult ? lotLabel(input.lotResult) : null,
-    extraLotAccepted: Boolean(input.extraLotAccepted)
+    extraLotAccepted: Boolean(input.extraLotAccepted),
+    extraLotEffect: input.lotEffect,
+    extraLotRedoneTradeType: input.lotRedoneTradeType
   };
 }
 

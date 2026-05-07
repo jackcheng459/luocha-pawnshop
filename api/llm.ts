@@ -106,7 +106,7 @@ function getProviderStatus() {
     provider,
     model:
       provider === "deepseek"
-        ? process.env.DEEPSEEK_MODEL ?? "deepseek-v4-flash"
+        ? process.env.DEEPSEEK_MODEL ?? "deepseek-v4-pro"
         : provider === "anthropic"
           ? process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5"
           : undefined
@@ -133,7 +133,7 @@ async function callDeepSeek(prompt: string): Promise<unknown> {
       Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`
     },
     body: JSON.stringify({
-      model: process.env.DEEPSEEK_MODEL ?? "deepseek-v4-flash",
+      model: process.env.DEEPSEEK_MODEL ?? "deepseek-v4-pro",
       messages: [
         { role: "system", content: "你只输出合法 JSON，不输出解释。" },
         { role: "user", content: prompt }

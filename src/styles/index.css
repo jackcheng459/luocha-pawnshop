@@ -1230,6 +1230,76 @@ button {
   color: #d8c29a;
 }
 
+.lot-result-panel {
+  position: relative;
+  overflow: hidden;
+  min-height: 360px;
+  padding-top: 72px;
+}
+
+.lot-result-panel::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(216, 194, 154, 0.16);
+  pointer-events: none;
+}
+
+.lot-result-seal {
+  position: absolute;
+  top: 22px;
+  right: 26px;
+  display: grid;
+  place-items: center;
+  width: 82px;
+  height: 82px;
+  border: 3px solid rgba(183, 45, 35, 0.82);
+  color: #c73427;
+  font-family: "Kaiti SC", "STKaiti", KaiTi, serif;
+  font-size: 24px;
+  background: rgba(104, 18, 12, 0.1);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+}
+
+.lot-result-panel h2,
+.lot-result-panel p,
+.lot-result-actions {
+  position: relative;
+  z-index: 1;
+}
+
+.lot-result-panel h2 {
+  color: #f3d9a0;
+  text-shadow: 0 0 18px rgba(184, 115, 45, 0.34);
+}
+
+.lot-result-panel p {
+  max-width: 420px;
+  margin: 10px auto 22px;
+  font-size: 17px;
+  line-height: 1.9;
+}
+
+.lot-result-actions {
+  flex-wrap: wrap;
+}
+
+.lot-result-actions .ghost-button,
+.lot-result-actions .seal-button {
+  min-height: 48px;
+}
+
+.lot-extra-note {
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(216, 194, 154, 0.18);
+  border-radius: 6px;
+  color: #d8c29a;
+  background: rgba(15, 8, 5, 0.28);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .lot-stick {
   position: relative;
   width: 90px;
@@ -1278,6 +1348,7 @@ button {
 .receipt-fate,
 .receipt-story,
 .receipt-lines,
+.receipt-lot-entry,
 .receipt-farewell,
 .receipt-share-card .ledger {
   position: relative;
@@ -1326,6 +1397,28 @@ button {
   margin: 0;
   font-size: 13px;
   line-height: 1.42;
+}
+
+.receipt-lot-entry {
+  margin: 9px 0 8px;
+  padding: 8px 10px;
+  border: 1px dashed rgba(143, 36, 29, 0.38);
+  background: rgba(143, 36, 29, 0.06);
+}
+
+.receipt-lot-entry span {
+  display: block;
+  margin-bottom: 3px;
+  color: #9b2a21;
+  font-family: "Kaiti SC", "STKaiti", KaiTi, serif;
+  font-size: 15px;
+}
+
+.receipt-lot-entry p {
+  margin: 0;
+  color: #3a2114;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .receipt-share-card .ledger-row {

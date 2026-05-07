@@ -15,7 +15,7 @@ export function getProviderStatus() {
     provider,
     model:
       provider === "deepseek"
-        ? process.env.DEEPSEEK_MODEL ?? "deepseek-v4-flash"
+        ? process.env.DEEPSEEK_MODEL ?? "deepseek-v4-pro"
         : provider === "anthropic"
           ? process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5"
           : "fallback"
@@ -56,7 +56,7 @@ async function callDeepSeekText(
 ): Promise<LlmTextResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 8000);
-  const model = options.model ?? process.env.DEEPSEEK_MODEL ?? "deepseek-v4-flash";
+  const model = options.model ?? process.env.DEEPSEEK_MODEL ?? "deepseek-v4-pro";
   try {
     const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",

@@ -10,6 +10,7 @@ import { GuidanceChoice } from "./components/GuidanceChoice";
 import { ItemShelf } from "./components/ItemShelf";
 import { ItemObtainOverlay } from "./components/ItemObtainOverlay";
 import { LotDrawer } from "./components/LotDrawer";
+import { LotResultPanel } from "./components/LotResultPanel";
 import { OpeningScene } from "./components/OpeningScene";
 import { PawnForm } from "./components/PawnForm";
 import { PhraseAdmin } from "./components/PhraseAdmin";
@@ -118,6 +119,25 @@ function GameApp() {
   }, [player, state.phase]);
 
   useEffect(() => {
+    try {
+      if (player?.drewLot) {
+        window.sessionStorage.setItem(
+          "luocha:lot",
+          JSON.stringify({
+            result: player.lotResult,
+            mode: player.lotMode,
+            entry: player.lotEntry
+          })
+        );
+      } else {
+        window.sessionStorage.removeItem("luocha:lot");
+      }
+    } catch {
+      // 抽签状态只服务本局流程，sessionStorage 不可用时不影响主流程。
+    }
+  }, [player?.drewLot, player?.lotEntry, player?.lotMode, player?.lotResult]);
+
+  useEffect(() => {
     if (!state.lastDialog || state.phase === "fateCard") return;
     setActiveDialog(state.lastDialog);
   }, [state.lastDialog, state.phase]);
@@ -195,6 +215,7 @@ function GameApp() {
     setActiveDialog(undefined);
     setObtained(undefined);
     dispatch({ type: "RESET" });
+    clearLotSession();
   }
 
   function handleBuy(itemId: number) {
@@ -239,6 +260,21 @@ function GameApp() {
       .find((entry) => entry.value > 0);
     if (!missing) return undefined;
     return `客官${resourceLabels[missing.key]}尚缺 ${missing.value} 钱`;
+  }
+
+  function canPawnExtra() {
+    if (!player) return false;
+    return resourceOrder.some((key) => player.resources[key] >= 3);
+  }
+
+  function canBuyExtra(multiplier = player?.priceMultiplier ?? 1) {
+    if (!player) return false;
+    return items.some((item) => canAfford(player.resources, item.price, multiplier));
+  }
+
+  function finishReceipt() {
+    clearLotSession();
+    dispatch({ type: "GO_RECEIPT" });
   }
 
   function enterShop() {
@@ -338,8 +374,9 @@ function GameApp() {
       return (
         <section className="two-column">
           <PawnForm
-            canSellAgain={player.pawnCount < 2}
+            canSellAgain={Boolean(player.lotMode) || player.pawnCount < 3}
             isEntry={!player.hasPawned}
+            pawnRate={player.lotMode === "zhongExtra" ? 0.4 : 0.7}
             resources={player.resources}
             showGuidance={
               !player.hasPawned && canShowGuidance(GUIDANCE_NODES.PAWN_FIRST_TIME)
@@ -368,28 +405,39 @@ function GameApp() {
             <p className="keeper-line">{state.lastDialog}</p>
             <StoryLedger beats={player.storyBeats} />
             <div className="action-stack">
-              <button className="ghost-button" type="button" onClick={endGame}>
-                <DoorOpen size={15} strokeWidth={1.8} />
-                <span>结当离店</span>
-              </button>
-              <button
-                className="ghost-button"
-                disabled={player.pawnCount >= 2 || showPawnAgain}
-                type="button"
-                onClick={() => {
-                  audioEngine.playPaper();
-                  setShowPawnAgain(true);
-                }}
-              >
-                再典一物
-              </button>
+              {!player.lotMode ? (
+                <button className="ghost-button" type="button" onClick={endGame}>
+                  <DoorOpen size={15} strokeWidth={1.8} />
+                  <span>结当离店</span>
+                </button>
+              ) : (
+                <p className="lot-extra-note">
+                  {player.lotMode === "zhongExtra"
+                    ? "中签已落，须再做一笔。"
+                    : "上签已反悔，客官可重做一笔。"}
+                </p>
+              )}
+              {player.lotExtraChoice !== "buy" ? (
+                <button
+                  className="ghost-button"
+                  disabled={(!player.lotMode && player.pawnCount >= 3) || showPawnAgain || !canPawnExtra()}
+                  type="button"
+                  onClick={() => {
+                    audioEngine.playPaper();
+                    setShowPawnAgain(true);
+                  }}
+                >
+                  再典一物
+                </button>
+              ) : null}
             </div>
             {showPawnAgain ? (
               <PawnForm
-                canSellAgain={player.pawnCount < 2}
+                canSellAgain={Boolean(player.lotMode) || player.pawnCount < 3}
                 isEntry={false}
+                pawnRate={player.lotMode === "zhongExtra" ? 0.4 : 0.7}
                 resources={player.resources}
-                onCancel={() => setShowPawnAgain(false)}
+                onCancel={player.lotMode ? undefined : () => setShowPawnAgain(false)}
                 onSubmit={submitPawn}
               />
             ) : null}
@@ -414,8 +462,32 @@ function GameApp() {
             audioEngine.playLot();
             dispatch({ type: "DRAW_LOT", result: drawLot() });
           }}
-          onSkip={endGame}
         />
+      );
+    }
+
+    if (state.phase === "lotResult" && player.lotResult) {
+      return (
+        <section className="two-column">
+          <LotResultPanel
+            canBuyExtra={canBuyExtra(2)}
+            canPawnExtra={canPawnExtra()}
+            guidanceMode={guidanceMode}
+            huiDeducted={player.lotHuiDeducted}
+            result={player.lotResult}
+            onChooseZhongBuy={() => dispatch({ type: "LOT_ZHONG_CHOOSE", choice: "buy" })}
+            onChooseZhongPawn={() => dispatch({ type: "LOT_ZHONG_CHOOSE", choice: "pawn" })}
+            onFinish={finishReceipt}
+            onKeepShang={() => dispatch({ type: "LOT_SHANG_KEEP" })}
+            onUndoNoRedo={() => dispatch({ type: "LOT_SHANG_UNDO_NO_REDO" })}
+            onUndoRedo={() => dispatch({ type: "LOT_SHANG_UNDO_REDO" })}
+          />
+          <aside className="side-ledger">
+            <ResourceLedger resources={player.resources} original={player.originalResources} />
+            <p>{state.lastDialog}</p>
+            <StoryLedger beats={player.storyBeats} />
+          </aside>
+        </section>
       );
     }
 
@@ -437,6 +509,7 @@ function GameApp() {
                   audioEngine.playLeave();
                   shownGuidanceRef.current.clear();
                   shownInsufficientItemRef.current.clear();
+                  clearLotSession();
                   setGuidanceMode(null);
                   setInsufficientItemId(undefined);
                   dispatch({ type: "LEAVE" });
@@ -526,4 +599,12 @@ function transitionText(screenKey: string): string | undefined {
     leaving: "天色将白"
   };
   return labels[screenKey];
+}
+
+function clearLotSession() {
+  try {
+    window.sessionStorage.removeItem("luocha:lot");
+  } catch {
+    // Session storage is only a same-tab lot marker.
+  }
 }

@@ -12,6 +12,7 @@ type PawnFormProps = {
   onCancel?: () => void;
   showGuidance?: boolean;
   onGuidanceVisible?: () => void;
+  pawnRate?: number;
 };
 
 const pawnAmounts: PawnAmount[] = [3, 7, 10];
@@ -23,7 +24,8 @@ export function PawnForm({
   onSubmit,
   onCancel,
   showGuidance = false,
-  onGuidanceVisible
+  onGuidanceVisible,
+  pawnRate = 0.7
 }: PawnFormProps) {
   const [resourceFrom, setResourceFrom] = useState<ResourceKey>("chi");
   const [resourceTo, setResourceTo] = useState<ResourceKey>("chi");
@@ -129,7 +131,7 @@ export function PawnForm({
       </label>
 
       <div className="pawn-summary">
-        典出 {formatMoney(amountFrom)}{resourceName(resourceFrom)}，得 {formatMoney(Math.floor(amountFrom * 0.7))}
+        典出 {formatMoney(amountFrom)}{resourceName(resourceFrom)}，得 {formatMoney(Math.floor(amountFrom * pawnRate))}
         {resourceName(target)}
       </div>
 

@@ -65,6 +65,17 @@ export type PawnAmount = 3 | 7 | 10;
 
 export type LotResult = "shang" | "zhong" | "xia";
 
+export type LotMode = "shangRedo" | "zhongExtra";
+
+export type LotExtraChoice = "any" | "pawn" | "buy";
+
+export type LotEntry = {
+  type: LotResult;
+  description: string;
+  redoneAction?: TradeRecord;
+  huiDeducted?: number;
+};
+
 export type TradeRecord = {
   id: string;
   type: "pawn" | "buy" | "lotPenalty";
@@ -81,6 +92,12 @@ export type TradeRecord = {
   dialog?: string;
   storyNote?: string;
   verbForReceipt: string;
+  resourcesBefore?: ResourceMap;
+  resourcesAfter?: ResourceMap;
+  pawnCountBefore?: number;
+  buyCountBefore?: number;
+  freeTradeCountBefore?: number;
+  lotExtra?: boolean;
 };
 
 export type PlayerState = {
@@ -106,6 +123,10 @@ export type PlayerState = {
   pawnCount: number;
   drewLot: boolean;
   lotResult?: LotResult;
+  lotMode?: LotMode;
+  lotExtraChoice?: LotExtraChoice;
+  lotEntry?: LotEntry;
+  lotHuiDeducted?: number;
   priceMultiplier: 1 | 2;
   farewell?: string;
   receiptStoryTitle?: string;
@@ -174,7 +195,9 @@ export type FateStoryInput = {
   }>;
   drewLot: boolean;
   lotResult?: LotResult;
+  lotEffect?: string;
   extraLotAccepted?: boolean;
+  lotRedoneTradeType?: "pawn" | "buy";
   timestamp: string;
   seasonTerm?: string;
   nightLabel?: string;
