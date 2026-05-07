@@ -30,6 +30,7 @@
 - README 五维统一为“痴、嗔、贪、惘、慧”，修正旧口径“气、尘、贪、妄、悔”。
 - README 与 `.env.example` 将 DeepSeek 默认模型更新为 `deepseek-v4-pro`。
 - README 主访问地址更新为 `https://www.luochapawnshop.top`。
+- 页面 meta 与展示图文案统一为“痴嗔贪惘慧”。
 - 新增 `docs/upgrades/`，归档引导文案 v1.0 至 v1.3 与 v1.5.1 抽签机制文档。
 
 ## 已推送基线

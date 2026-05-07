@@ -20,7 +20,7 @@ export function ShowcasePoster() {
           <div className="poster-inkwash" />
           <div className="poster-copy">
             <h1>罗刹当铺</h1>
-            <p>不收金银，只当你的痴嗔贪惘。</p>
+            <p>不收金银，只当你的痴嗔贪惘慧。</p>
           </div>
         </div>
       </div>
